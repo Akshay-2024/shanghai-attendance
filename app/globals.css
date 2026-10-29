@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+:root {
   --color-dojo-bg: #0a0a0f;
   --color-dojo-surface: #12121a;
   --color-dojo-card: #1a1a26;
