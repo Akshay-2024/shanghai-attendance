@@ -145,7 +145,18 @@ export default function FeesTab() {
             Track full, partial, and outstanding fee payments (Admin only)
           </p>
         </div>
-        <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="input-dojo" style={{ width: "auto" }} />
+        <input 
+          type="month" 
+          value={month} 
+          onChange={e => setMonth(e.target.value)} 
+          onClick={(e) => {
+            try {
+              e.currentTarget.showPicker();
+            } catch {}
+          }}
+          className="input-dojo" 
+          style={{ width: "auto", cursor: "pointer", fontWeight: 600 }} 
+        />
       </div>
 
       {/* Summary Cards */}

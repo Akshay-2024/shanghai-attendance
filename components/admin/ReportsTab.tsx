@@ -53,19 +53,41 @@ export default function ReportsTab() {
   })();
 
   function exportCSV() {
-    const rows = [["Name", "Belt", "Month", "Present Days", "Total Days", "Attendance %", "Fee Status", "Amount Paid"]];
+    const rows = [["Name", "Belt", "Month", "Present Days", "Total Days", "Attendance %", "Fee Status", "Amount Paid (₹)"]];
     students.forEach(s => {
       const monthRecords = s.attendance.filter(a => a.date.startsWith(month));
       const total = monthRecords.length;
       const present = monthRecords.filter(a => a.present).length;
       const fee = s.fees.find(f => f.month === month);
-      rows.push([s.name, s.belt, month, String(present), String(total), total ? `${Math.round((present/total)*100)}%` : "0%", fee?.status || "N/A", fee ? `₹${fee.amountPaid}` : "₹0"]);
+      rows.push([
+        s.name, 
+        s.belt, 
+        month, 
+        String(present), 
+        String(total), 
+        total ? `${Math.round((present/total)*100)}%` : "0%", 
+        fee?.status || "N/A", 
+        fee ? String(fee.amountPaid) : "0"
+      ]);
     });
-    const csv = rows.map(r => r.join(",")).join("\n");
+
+    // Helper to escape CSV fields
+    const escapeCSV = (field: string) => {
+      if (field.includes(",") || field.includes('"') || field.includes("\n")) {
+        return `"${field.replace(/"/g, '""')}"`;
+      }
+      return field;
+    };
+
+    // Prepend UTF-8 BOM (\uFEFF) so Microsoft Excel opens Unicode (₹) properly without garbling
+    const csvContent = "\uFEFF" + rows.map(r => r.map(escapeCSV).join(",")).join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+    a.href = url;
     a.download = `karate-report-${month}.csv`;
     a.click();
+    URL.revokeObjectURL(url);
   }
 
   const COLORS = ["#c0392b","#e74c3c","#f39c12","#2ecc71","#3498db","#9b59b6","#1abc9c"];
@@ -78,7 +100,18 @@ export default function ReportsTab() {
           <p style={{ color: "#8888aa", fontSize: "0.85rem", marginTop: "0.2rem" }}>Monthly attendance and fee analytics</p>
         </div>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
-          <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="input-dojo" style={{ width: "auto" }} />
+          <input 
+            type="month" 
+            value={month} 
+            onChange={e => setMonth(e.target.value)} 
+            onClick={(e) => {
+              try {
+                e.currentTarget.showPicker();
+              } catch {}
+            }}
+            className="input-dojo" 
+            style={{ width: "auto", cursor: "pointer", fontWeight: 600 }} 
+          />
           <button onClick={exportCSV} className="btn-ghost"><Download size={15} />Export CSV</button>
         </div>
       </div>

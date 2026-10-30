@@ -32,7 +32,7 @@ const BELT_META: Record<string, { label: string; color: string; bg: string; bord
   BROWN_III: { label: "Brown III", color: "#b45309", bg: "rgba(120,53,15,0.35)", border: "rgba(180,83,9,0.5)" },
   BROWN_II: { label: "Brown II", color: "#92400e", bg: "rgba(120,53,15,0.45)", border: "rgba(146,64,14,0.5)" },
   BROWN: { label: "Brown", color: "#78350f", bg: "rgba(120,53,15,0.55)", border: "rgba(120,53,15,0.6)" },
-  BLACK: { label: "Black", color: "#e2e8f0", bg: "rgba(0,0,0,0.6)", border: "rgba(226,232,240,0.4)" },
+  BLACK: { label: "Black", color: "#fd0000", bg: "rgba(0,0,0,0.6)", border: "rgba(226,232,240,0.4)" },
 };
 
 interface Student {

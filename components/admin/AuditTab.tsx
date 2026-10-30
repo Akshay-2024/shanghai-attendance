@@ -95,6 +95,13 @@ export default function AuditTab() {
   });
 
   function exportCSV() {
+    const escapeCSV = (field: string) => {
+      if (field.includes(",") || field.includes('"') || field.includes("\n")) {
+        return `"${field.replace(/"/g, '""')}"`;
+      }
+      return field;
+    };
+
     if (activeSubTab === "logins") {
       const rows = [["Username", "Login Date & Time", "IP Address", "Browser / Device"]];
       filteredLogins.forEach(l => {
@@ -105,27 +112,33 @@ export default function AuditTab() {
           (l.userAgent || "Unknown").replace(/,/g, " "),
         ]);
       });
-      const csv = rows.map(r => r.join(",")).join("\n");
+      const csv = "\uFEFF" + rows.map(r => r.map(escapeCSV).join(",")).join("\r\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+      a.href = url;
       a.download = `shanghai-karate-login-audit-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
+      URL.revokeObjectURL(url);
     } else {
       const rows = [["User", "Action", "Details", "Date & Time", "IP Address"]];
       filteredActivities.forEach(act => {
         rows.push([
           act.username,
           act.action,
-          `"${act.details.replace(/"/g, '""')}"`,
+          act.details,
           new Date(act.createdAt).toLocaleString("en-IN"),
           act.ipAddress || "Unknown",
         ]);
       });
-      const csv = rows.map(r => r.join(",")).join("\n");
+      const csv = "\uFEFF" + rows.map(r => r.map(escapeCSV).join(",")).join("\r\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+      a.href = url;
       a.download = `shanghai-karate-activity-audit-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
+      URL.revokeObjectURL(url);
     }
   }
 

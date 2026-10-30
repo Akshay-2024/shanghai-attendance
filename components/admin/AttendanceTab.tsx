@@ -119,7 +119,19 @@ export default function AttendanceTab() {
       <div className="glass" style={{ borderRadius: 14, padding: "1rem", marginBottom: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "100%" }}>
           <button onClick={() => changeDate(-1)} className="btn-ghost" style={{ padding: "0.5rem 0.75rem", flexShrink: 0 }} aria-label="Previous day"><ChevronLeft size={16} /></button>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} className="input-dojo" style={{ flex: 1, minWidth: 0, textAlign: "center" }} max={today} />
+          <input 
+            type="date" 
+            value={date} 
+            onChange={e => setDate(e.target.value)} 
+            onClick={(e) => {
+              try {
+                e.currentTarget.showPicker();
+              } catch {}
+            }}
+            className="input-dojo" 
+            style={{ flex: 1, minWidth: 0, textAlign: "center", cursor: "pointer", fontWeight: 600 }} 
+            max={today} 
+          />
           <button onClick={() => changeDate(1)} className="btn-ghost" style={{ padding: "0.5rem 0.75rem", flexShrink: 0 }} disabled={date >= today} aria-label="Next day"><ChevronRight size={16} /></button>
         </div>
 
