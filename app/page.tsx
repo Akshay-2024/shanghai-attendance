@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { 
   Search, Users, Calendar, Trophy, Shield, Flame, 
-  ChevronRight, Award, Sparkles, CheckCircle2, Clock
+  ChevronRight, Award, Clock
 } from "lucide-react";
 
 const BELT_LABELS: Record<string, string> = {
@@ -93,9 +93,9 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   const today = new Date().toLocaleDateString("en-IN", { 
-    weekday: "long", 
+    weekday: "short", 
     year: "numeric", 
-    month: "long", 
+    month: "short", 
     day: "numeric" 
   });
 
@@ -116,6 +116,205 @@ export default function HomePage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#08080c", color: "#f1f1f6", overflowX: "hidden", fontFamily: "inherit" }}>
+      <style>{`
+        /* Global Mobile Polish */
+        .nav-header {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          background: rgba(8, 8, 12, 0.88);
+          backdrop-filter: blur(16px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          padding: 0 1.5rem;
+        }
+        .nav-inner {
+          max-width: 1240px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          height: 68px;
+          gap: 0.75rem;
+        }
+        .nav-brand {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          text-decoration: none;
+          min-width: 0;
+        }
+        .nav-brand-title {
+          font-weight: 800;
+          font-size: 1.12rem;
+          letter-spacing: 0.01em;
+          color: #ffffff;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+        .nav-kanji {
+          font-size: 0.65rem;
+          background: rgba(192,57,43,0.25);
+          border: 1px solid rgba(192,57,43,0.5);
+          color: #f87171;
+          padding: 0.12rem 0.4rem;
+          border-radius: 4px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .nav-brand-sub {
+          font-size: 0.7rem;
+          color: #8e8ea6;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .nav-btn {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          background: linear-gradient(135deg, #c0392b 0%, #96281b 100%);
+          color: #ffffff;
+          padding: 0.52rem 1.15rem;
+          border-radius: 9px;
+          font-size: 0.85rem;
+          font-weight: 700;
+          text-decoration: none;
+          white-space: nowrap;
+          box-shadow: 0 0 16px rgba(192, 57, 43, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          flex-shrink: 0;
+        }
+        .date-badge {
+          display: none;
+          color: #8e8ea6;
+          font-size: 0.82rem;
+          align-items: center;
+          gap: 0.4rem;
+          white-space: nowrap;
+        }
+
+        @media (min-width: 640px) {
+          .date-badge {
+            display: flex;
+          }
+        }
+
+        /* Responsive Mobile Adjustments */
+        @media (max-width: 640px) {
+          .nav-header {
+            padding: 0 0.85rem;
+          }
+          .nav-inner {
+            height: 58px;
+            gap: 0.5rem;
+          }
+          .nav-brand {
+            gap: 0.55rem;
+          }
+          .nav-logo-box {
+            width: 34px !important;
+            height: 34px !important;
+          }
+          .nav-brand-title {
+            font-size: 0.92rem;
+          }
+          .nav-kanji {
+            display: none; /* Hide kanji on small phones so brand fits without wrapping */
+          }
+          .nav-brand-sub {
+            font-size: 0.6rem;
+            letter-spacing: 0.03em;
+          }
+          .nav-btn {
+            padding: 0.42rem 0.75rem;
+            font-size: 0.78rem;
+            gap: 0.35rem;
+          }
+
+          /* Hero */
+          .hero-wrap {
+            padding: 2.5rem 1rem 1.75rem !important;
+          }
+          .hero-pill {
+            font-size: 0.72rem !important;
+            padding: 0.32rem 0.8rem !important;
+            margin-bottom: 1.25rem !important;
+          }
+          .hero-pill-text {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .hero-title {
+            font-size: 1.85rem !important;
+            line-height: 1.15 !important;
+            margin-bottom: 0.85rem !important;
+          }
+          .hero-desc {
+            font-size: 0.92rem !important;
+            margin-bottom: 1.75rem !important;
+          }
+          .hero-stats-box {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.75rem !important;
+            padding: 1rem !important;
+          }
+          .hero-stat-val {
+            font-size: 1.35rem !important;
+          }
+          .hero-stat-label {
+            font-size: 0.65rem !important;
+          }
+
+          /* Belt Ladder */
+          .belt-ladder-wrap {
+            padding: 0 0.85rem !important;
+            margin: 0.5rem auto 1.5rem !important;
+          }
+          .belt-ladder-box {
+            padding: 1rem !important;
+          }
+
+          /* Student Roster */
+          .roster-wrap {
+            padding: 1.25rem 0.85rem 3.5rem !important;
+          }
+          .roster-toolbar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.85rem !important;
+            margin-bottom: 1.5rem !important;
+          }
+          .roster-inputs {
+            max-width: 100% !important;
+            flex-direction: column !important;
+            gap: 0.6rem !important;
+          }
+          .roster-input-search {
+            min-width: 100% !important;
+          }
+          .roster-select-belt {
+            width: 100% !important;
+          }
+          .student-cards-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+          .footer-wrap {
+            padding: 2.5rem 1rem 1.75rem !important;
+          }
+          .footer-inner {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1.25rem !important;
+          }
+        }
+      `}</style>
+
       {/* Dynamic Background Dojo Ambience */}
       <div 
         style={{ 
@@ -127,14 +326,14 @@ export default function HomePage() {
         }} 
       />
 
-      {/* Decorative Traditional Japanese Calligraphy Watermark in background */}
+      {/* Traditional Calligraphy Watermark in background */}
       <div 
         aria-hidden="true"
         style={{
           position: "fixed",
           top: "12%",
           right: "2%",
-          fontSize: "clamp(8rem, 20vw, 22rem)",
+          fontSize: "clamp(6rem, 18vw, 20rem)",
           fontWeight: 900,
           color: "rgba(255,255,255,0.015)",
           userSelect: "none",
@@ -148,76 +347,60 @@ export default function HomePage() {
       </div>
 
       {/* ================= NAVBAR ================= */}
-      <header 
-        style={{ 
-          position: "sticky", 
-          top: 0, 
-          zIndex: 50, 
-          background: "rgba(8, 8, 12, 0.8)", 
-          backdropFilter: "blur(16px)", 
-          borderBottom: "1px solid rgba(255, 255, 255, 0.07)", 
-          padding: "0 1.5rem" 
-        }}
-      >
-        <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72 }}>
+      <header className="nav-header">
+        <div className="nav-inner">
           {/* Dojo Brand */}
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.85rem", textDecoration: "none" }}>
-            <div style={{ position: "relative", padding: 2, background: "linear-gradient(135deg, #c0392b, #f39c12)", borderRadius: 12 }}>
+          <Link href="/" className="nav-brand">
+            <div 
+              className="nav-logo-box" 
+              style={{ 
+                position: "relative", 
+                padding: 2, 
+                background: "linear-gradient(135deg, #c0392b, #f39c12)", 
+                borderRadius: 10,
+                width: 40,
+                height: 40,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0
+              }}
+            >
               <Image 
                 src="/logo.png" 
                 alt="Shanghai Karate Logo" 
-                width={42} 
-                height={42} 
-                style={{ borderRadius: 10, display: "block", objectFit: "cover", background: "#0a0a0f" }} 
+                width={36} 
+                height={36} 
+                style={{ borderRadius: 8, display: "block", objectFit: "cover", background: "#0a0a0f" }} 
               />
             </div>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span style={{ fontWeight: 800, fontSize: "1.15rem", letterSpacing: "0.02em", color: "#ffffff", textTransform: "uppercase" }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <span className="nav-brand-title">
                   Shanghai Karate
                 </span>
-                <span style={{ fontSize: "0.65rem", background: "rgba(192,57,43,0.25)", border: "1px solid rgba(192,57,43,0.5)", color: "#f87171", padding: "0.15rem 0.45rem", borderRadius: 4, fontWeight: 700 }}>
+                <span className="nav-kanji">
                   松涛館
                 </span>
               </div>
-              <div style={{ fontSize: "0.72rem", color: "#8e8ea6", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              <div className="nav-brand-sub">
                 Shotokan Karate Academy
               </div>
             </div>
           </Link>
 
           {/* Quick Info & Admin CTA */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-            <div style={{ display: "none", color: "#8e8ea6", fontSize: "0.82rem", alignItems: "center", gap: "0.4rem" }} className="date-badge">
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0 }}>
+            <div className="date-badge">
               <Calendar size={14} color="#c0392b" />
               <span>{today}</span>
             </div>
-            <style>{`
-              @media (min-width: 640px) {
-                .date-badge { display: flex !important; }
-              }
-            `}</style>
             
             <Link 
               href="/admin/login" 
-              style={{ 
-                position: "relative",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                background: "linear-gradient(135deg, #c0392b 0%, #96281b 100%)", 
-                color: "#ffffff", 
-                padding: "0.55rem 1.25rem", 
-                borderRadius: 10, 
-                fontSize: "0.85rem", 
-                fontWeight: 700, 
-                textDecoration: "none", 
-                boxShadow: "0 0 20px rgba(192, 57, 43, 0.4)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                transition: "all 0.25s ease"
-              }}
+              className="nav-btn"
             >
-              <Shield size={15} />
+              <Shield size={14} />
               <span>Sensei Portal</span>
             </Link>
           </div>
@@ -225,42 +408,44 @@ export default function HomePage() {
       </header>
 
       {/* ================= HERO SECTION ================= */}
-      <section style={{ position: "relative", padding: "4.5rem 1.5rem 3.5rem", textAlign: "center", zIndex: 1 }}>
+      <section className="hero-wrap" style={{ position: "relative", padding: "4.5rem 1.5rem 3rem", textAlign: "center", zIndex: 1 }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           
           {/* Top Dojo Pill */}
           <div 
+            className="hero-pill"
             style={{ 
               display: "inline-flex", 
               alignItems: "center", 
-              gap: "0.6rem", 
+              gap: "0.55rem", 
               background: "rgba(192, 57, 43, 0.1)", 
               border: "1px solid rgba(192, 57, 43, 0.35)", 
               borderRadius: 50, 
-              padding: "0.4rem 1.1rem", 
+              padding: "0.38rem 1.1rem", 
               marginBottom: "1.75rem", 
               fontSize: "0.82rem", 
               color: "#f87171",
               boxShadow: "0 0 25px rgba(192,57,43,0.2)" 
             }}
           >
-            <Flame size={15} style={{ color: "#e74c3c" }} />
-            <span style={{ fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            <Flame size={14} style={{ color: "#e74c3c", flexShrink: 0 }} />
+            <span className="hero-pill-text" style={{ fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
               Traditional Shotokan Martial Arts
             </span>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px #22c55e" }} />
-            <span style={{ color: "#86efac", fontSize: "0.75rem", fontWeight: 600 }}>Dojo Active</span>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px #22c55e", flexShrink: 0 }} />
+            <span style={{ color: "#86efac", fontSize: "0.75rem", fontWeight: 600, flexShrink: 0 }}>Dojo Active</span>
           </div>
 
           {/* Main Hero Header */}
           <h1 
+            className="hero-title"
             style={{ 
-              fontSize: "clamp(2.3rem, 6vw, 4.2rem)", 
+              fontSize: "clamp(2.1rem, 6vw, 4.2rem)", 
               fontWeight: 900, 
               color: "#ffffff", 
               letterSpacing: "-0.03em", 
               lineHeight: 1.1, 
-              marginBottom: "1.25rem",
+              marginBottom: "1.1rem",
               textTransform: "uppercase"
             }}
           >
@@ -277,12 +462,12 @@ export default function HomePage() {
             </span>
           </h1>
 
-          <p style={{ color: "#9aa0b8", fontSize: "clamp(1rem, 2vw, 1.18rem)", maxWidth: 640, margin: "0 auto 2.5rem", lineHeight: 1.6 }}>
+          <p className="hero-desc" style={{ color: "#9aa0b8", fontSize: "clamp(0.95rem, 2vw, 1.15rem)", maxWidth: 640, margin: "0 auto 2.25rem", lineHeight: 1.6 }}>
             Official attendance &amp; belt rank tracking registry for Shanghai Karate. Honoring the spirit of Bushido through daily practice and relentless improvement.
           </p>
 
           {/* Quick Action Navigation */}
-          <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "3rem" }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "2.75rem" }}>
             <a 
               href="#student-roster" 
               style={{ 
@@ -291,10 +476,10 @@ export default function HomePage() {
                 gap: "0.5rem", 
                 background: "linear-gradient(135deg, #c0392b, #871f14)", 
                 color: "#ffffff", 
-                padding: "0.75rem 1.6rem", 
+                padding: "0.7rem 1.5rem", 
                 borderRadius: 12, 
                 fontWeight: 700, 
-                fontSize: "0.95rem", 
+                fontSize: "0.92rem", 
                 textDecoration: "none",
                 boxShadow: "0 4px 20px rgba(192,57,43,0.35)",
                 border: "1px solid rgba(255,255,255,0.15)",
@@ -303,42 +488,43 @@ export default function HomePage() {
               onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
               onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}
             >
-              <Users size={17} />
-              <span>Explore Student Chart</span>
-              <ChevronRight size={16} />
+              <Users size={16} />
+              <span>Explore Student Roster</span>
+              <ChevronRight size={15} />
             </a>
           </div>
 
           {/* Stats Bar */}
           <div 
+            className="hero-stats-box"
             style={{ 
               display: "grid", 
-              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", 
+              gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", 
               gap: "1.25rem", 
               maxWidth: 820, 
               margin: "0 auto", 
-              padding: "1.5rem", 
+              padding: "1.35rem", 
               background: "rgba(18, 18, 28, 0.7)", 
               border: "1px solid rgba(255, 255, 255, 0.08)", 
-              borderRadius: 20,
+              borderRadius: 18,
               backdropFilter: "blur(12px)",
               boxShadow: "0 10px 30px rgba(0, 0, 0, 0.4)"
             }}
           >
             {[
-              { icon: <Users size={20} color="#f87171" />, count: students.length, label: "Enrolled Karateka" },
-              { icon: <Trophy size={20} color="#fbbf24" />, count: 11, label: "Belt Ranks" },
-              { icon: <Clock size={20} color="#60a5fa" />, count: "2 Days", label: "Weekly Training" },
-              { icon: <Award size={20} color="#4ade80" />, count: "Shotokan", label: "Martial Tradition" },
+              { icon: <Users size={18} color="#f87171" />, count: students.length, label: "Enrolled Karateka" },
+              { icon: <Trophy size={18} color="#fbbf24" />, count: 11, label: "Belt Ranks" },
+              { icon: <Clock size={18} color="#60a5fa" />, count: "6 Days", label: "Weekly Training" },
+              { icon: <Award size={18} color="#4ade80" />, count: "Shotokan", label: "Martial Tradition" },
             ].map((stat, idx) => (
-              <div key={idx} style={{ textAlign: "center", padding: "0.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.35rem" }}>
+              <div key={idx} style={{ textAlign: "center", padding: "0.4rem" }}>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.3rem" }}>
                   {stat.icon}
                 </div>
-                <div style={{ fontSize: "1.65rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
+                <div className="hero-stat-val" style={{ fontSize: "1.55rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
                   {stat.count}
                 </div>
-                <div style={{ fontSize: "0.72rem", color: "#8e8ea6", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>
+                <div className="hero-stat-label" style={{ fontSize: "0.7rem", color: "#8e8ea6", textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 600 }}>
                   {stat.label}
                 </div>
               </div>
@@ -349,37 +535,40 @@ export default function HomePage() {
       </section>
 
       {/* ================= INTERACTIVE BELT PATH ================= */}
-      <section style={{ maxWidth: 1240, margin: "1rem auto 2.5rem", padding: "0 1.5rem", position: "relative", zIndex: 1 }}>
-        <div style={{ 
-          background: "linear-gradient(180deg, rgba(22, 22, 34, 0.8) 0%, rgba(14, 14, 22, 0.8) 100%)", 
-          border: "1px solid rgba(255, 255, 255, 0.08)", 
-          borderRadius: 20, 
-          padding: "1.5rem",
-          backdropFilter: "blur(12px)"
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.2rem" }}>
+      <section className="belt-ladder-wrap" style={{ maxWidth: 1240, margin: "0.75rem auto 2.25rem", padding: "0 1.5rem", position: "relative", zIndex: 1 }}>
+        <div 
+          className="belt-ladder-box"
+          style={{ 
+            background: "linear-gradient(180deg, rgba(22, 22, 34, 0.8) 0%, rgba(14, 14, 22, 0.8) 100%)", 
+            border: "1px solid rgba(255, 255, 255, 0.08)", 
+            borderRadius: 18, 
+            padding: "1.35rem",
+            backdropFilter: "blur(12px)"
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem" }}>
             <div>
-              <div style={{ fontSize: "0.75rem", color: "#e74c3c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              <div style={{ fontSize: "0.72rem", color: "#e74c3c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
                 Rank Progression
               </div>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#ffffff", margin: 0 }}>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#ffffff", margin: 0 }}>
                 Interactive Belt Ladder
               </h2>
             </div>
-            <div style={{ fontSize: "0.8rem", color: "#8e8ea6" }}>
-              Click any belt rank below to filter students
+            <div style={{ fontSize: "0.78rem", color: "#8e8ea6" }}>
+              Filter by belt rank
             </div>
           </div>
 
           {/* Belt Ribbon Buttons */}
-          <div style={{ display: "flex", gap: "0.6rem", overflowX: "auto", paddingBottom: "0.6rem" }}>
+          <div style={{ display: "flex", gap: "0.55rem", overflowX: "auto", paddingBottom: "0.5rem", WebkitOverflowScrolling: "touch" }}>
             <button
               onClick={() => setBelt("ALL")}
               style={{
                 flexShrink: 0,
-                padding: "0.5rem 1rem",
-                borderRadius: 10,
-                fontSize: "0.8rem",
+                padding: "0.45rem 0.9rem",
+                borderRadius: 9,
+                fontSize: "0.78rem",
                 fontWeight: 700,
                 cursor: "pointer",
                 background: belt === "ALL" ? "linear-gradient(135deg,#c0392b,#96281b)" : "rgba(255,255,255,0.05)",
@@ -400,14 +589,14 @@ export default function HomePage() {
                   onClick={() => setBelt(key)}
                   style={{
                     flexShrink: 0,
-                    padding: "0.5rem 0.95rem",
-                    borderRadius: 10,
-                    fontSize: "0.8rem",
+                    padding: "0.45rem 0.85rem",
+                    borderRadius: 9,
+                    fontSize: "0.78rem",
                     fontWeight: 700,
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.45rem",
+                    gap: "0.4rem",
                     background: isSelected ? meta.bg : "rgba(255,255,255,0.04)",
                     color: isSelected ? meta.color : "#d4d4d8",
                     border: isSelected ? `2px solid ${meta.border}` : "1px solid rgba(255,255,255,0.08)",
@@ -417,8 +606,8 @@ export default function HomePage() {
                 >
                   <span 
                     style={{ 
-                      width: 10, 
-                      height: 10, 
+                      width: 9, 
+                      height: 9, 
                       borderRadius: "50%", 
                       background: meta.color, 
                       display: "inline-block", 
@@ -426,7 +615,7 @@ export default function HomePage() {
                     }} 
                   />
                   <span>{meta.label}</span>
-                  <span style={{ fontSize: "0.7rem", opacity: 0.7 }}>({count})</span>
+                  <span style={{ fontSize: "0.68rem", opacity: 0.7 }}>({count})</span>
                 </button>
               );
             })}
@@ -435,34 +624,35 @@ export default function HomePage() {
       </section>
 
       {/* ================= STUDENT ROSTER SECTION ================= */}
-      <section id="student-roster" style={{ maxWidth: 1240, margin: "0 auto", padding: "2rem 1.5rem 4rem", position: "relative", zIndex: 1 }}>
+      <section id="student-roster" className="roster-wrap" style={{ maxWidth: 1240, margin: "0 auto", padding: "1.5rem 1.5rem 4rem", position: "relative", zIndex: 1 }}>
         
         {/* Search & Selector Toolbar */}
         <div 
+          className="roster-toolbar"
           style={{ 
             display: "flex", 
             gap: "1rem", 
             flexWrap: "wrap", 
             alignItems: "center", 
             justifyContent: "space-between", 
-            marginBottom: "2rem" 
+            marginBottom: "1.75rem" 
           }}
         >
           <div>
-            <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
+            <h2 style={{ fontSize: "1.55rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
               Student Directory
             </h2>
-            <p style={{ color: "#8e8ea6", fontSize: "0.88rem", marginTop: "0.2rem" }}>
+            <p style={{ color: "#8e8ea6", fontSize: "0.85rem", marginTop: "0.15rem" }}>
               Showing {filtered.length} student{filtered.length !== 1 ? "s" : ""}
               {belt !== "ALL" && ` in ${BELT_LABELS[belt]} Belt`}
             </p>
           </div>
 
-          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", flex: 1, maxWidth: 520 }}>
+          <div className="roster-inputs" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", flex: 1, maxWidth: 520 }}>
             {/* Search Input */}
-            <div style={{ position: "relative", flex: 1, minWidth: 220 }}>
+            <div className="roster-input-search" style={{ position: "relative", flex: 1, minWidth: 200 }}>
               <Search 
-                size={17} 
+                size={16} 
                 style={{ 
                   position: "absolute", 
                   left: 14, 
@@ -476,13 +666,13 @@ export default function HomePage() {
                 className="input-dojo"
                 style={{ 
                   width: "100%", 
-                  paddingLeft: "2.75rem", 
+                  paddingLeft: "2.6rem", 
                   paddingRight: "1rem", 
                   background: "#141420", 
                   border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 12,
-                  height: 44,
-                  fontSize: "0.88rem",
+                  borderRadius: 11,
+                  height: 42,
+                  fontSize: "0.86rem",
                   color: "#ffffff"
                 }}
                 placeholder="Search karateka by name..."
@@ -493,19 +683,19 @@ export default function HomePage() {
 
             {/* Dropdown Belt Selector */}
             <select
-              className="input-dojo"
+              className="input-dojo roster-select-belt"
               style={{
                 width: "auto",
-                minWidth: 160,
+                minWidth: 150,
                 backgroundColor: "#161624",
                 color: "#ffffff",
                 border: "1px solid rgba(255,255,255,0.18)",
-                borderRadius: 12,
-                height: 44,
+                borderRadius: 11,
+                height: 42,
                 padding: "0 1rem",
                 cursor: "pointer",
                 fontWeight: 600,
-                fontSize: "0.85rem"
+                fontSize: "0.84rem"
               }}
               value={belt}
               onChange={e => setBelt(e.target.value)}
@@ -522,12 +712,12 @@ export default function HomePage() {
 
         {/* Student Cards Grid */}
         {loading ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "1.5rem" }}>
+          <div className="student-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
             {[...Array(6)].map((_, i) => (
               <div 
                 key={i} 
                 className="skeleton" 
-                style={{ height: 210, borderRadius: 20, background: "rgba(255,255,255,0.03)" }} 
+                style={{ height: 200, borderRadius: 18, background: "rgba(255,255,255,0.03)" }} 
               />
             ))}
           </div>
@@ -535,15 +725,15 @@ export default function HomePage() {
           <div 
             style={{ 
               textAlign: "center", 
-              padding: "4rem 2rem", 
+              padding: "3.5rem 1.5rem", 
               background: "rgba(18, 18, 28, 0.5)", 
               border: "1px dashed rgba(255, 255, 255, 0.12)", 
-              borderRadius: 20 
+              borderRadius: 18 
             }}
           >
-            <Shield size={44} color="#8e8ea6" style={{ margin: "0 auto 1rem", opacity: 0.6 }} />
-            <h3 style={{ fontSize: "1.2rem", color: "#ffffff", fontWeight: 700 }}>No Karateka Found</h3>
-            <p style={{ color: "#8e8ea6", fontSize: "0.9rem", maxWidth: 400, margin: "0.5rem auto 1.5rem" }}>
+            <Shield size={40} color="#8e8ea6" style={{ margin: "0 auto 0.75rem", opacity: 0.6 }} />
+            <h3 style={{ fontSize: "1.1rem", color: "#ffffff", fontWeight: 700 }}>No Karateka Found</h3>
+            <p style={{ color: "#8e8ea6", fontSize: "0.85rem", maxWidth: 360, margin: "0.5rem auto 1.25rem" }}>
               No students match your current search or belt filter.
             </p>
             <button
@@ -552,9 +742,9 @@ export default function HomePage() {
                 background: "rgba(192,57,43,0.2)",
                 border: "1px solid rgba(192,57,43,0.4)",
                 color: "#f87171",
-                padding: "0.5rem 1.25rem",
-                borderRadius: 10,
-                fontSize: "0.85rem",
+                padding: "0.45rem 1.15rem",
+                borderRadius: 9,
+                fontSize: "0.82rem",
                 fontWeight: 600,
                 cursor: "pointer"
               }}
@@ -563,8 +753,8 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "1.5rem" }}>
-            {filtered.map((student, i) => {
+          <div className="student-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
+            {filtered.map((student) => {
               const meta = BELT_META[student.belt] || { label: student.belt, color: "#fff", bg: "rgba(255,255,255,0.1)", border: "rgba(255,255,255,0.2)" };
               return (
                 <Link key={student.id} href={`/student/${student.id}`} style={{ textDecoration: "none" }}>
@@ -572,8 +762,8 @@ export default function HomePage() {
                     style={{
                       background: "linear-gradient(180deg, rgba(24, 24, 36, 0.85) 0%, rgba(14, 14, 22, 0.95) 100%)",
                       border: "1px solid rgba(255, 255, 255, 0.08)",
-                      borderRadius: 20,
-                      padding: "1.4rem",
+                      borderRadius: 18,
+                      padding: "1.25rem",
                       cursor: "pointer",
                       position: "relative",
                       overflow: "hidden",
@@ -582,9 +772,9 @@ export default function HomePage() {
                       backdropFilter: "blur(10px)"
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.transform = "translateY(-6px)";
+                      e.currentTarget.style.transform = "translateY(-4px)";
                       e.currentTarget.style.borderColor = "rgba(192, 57, 43, 0.5)";
-                      e.currentTarget.style.boxShadow = "0 14px 35px rgba(192, 57, 43, 0.25)";
+                      e.currentTarget.style.boxShadow = "0 12px 30px rgba(192, 57, 43, 0.25)";
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.transform = "translateY(0)";
@@ -606,13 +796,13 @@ export default function HomePage() {
                     />
 
                     {/* Student Info Header */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.2rem" }}>
-                      <Avatar name={student.name} photoUrl={student.photoUrl} size={56} />
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1rem" }}>
+                      <Avatar name={student.name} photoUrl={student.photoUrl} size={50} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div 
                           style={{ 
                             fontWeight: 800, 
-                            fontSize: "1.05rem", 
+                            fontSize: "1rem", 
                             color: "#ffffff", 
                             whiteSpace: "nowrap", 
                             overflow: "hidden", 
@@ -621,19 +811,19 @@ export default function HomePage() {
                         >
                           {student.name}
                         </div>
-                        <div style={{ marginTop: "0.35rem" }}>
+                        <div style={{ marginTop: "0.25rem" }}>
                           <span 
                             style={{ 
-                              fontSize: "0.72rem", 
+                              fontSize: "0.68rem", 
                               fontWeight: 800, 
-                              padding: "0.25rem 0.7rem", 
+                              padding: "0.2rem 0.65rem", 
                               borderRadius: 50, 
                               textTransform: "uppercase", 
                               letterSpacing: "0.07em",
                               color: meta.color,
                               background: meta.bg,
                               border: `1px solid ${meta.border}`,
-                              boxShadow: `0 0 10px ${meta.bg}`
+                              boxShadow: `0 0 8px ${meta.bg}`
                             }}
                           >
                             {meta.label} Belt
@@ -643,21 +833,21 @@ export default function HomePage() {
                     </div>
 
                     {/* Attendance & Join Stat Blocks */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.55rem" }}>
                       <div 
                         style={{ 
                           background: "rgba(255, 255, 255, 0.03)", 
                           border: "1px solid rgba(255, 255, 255, 0.05)", 
-                          borderRadius: 12, 
-                          padding: "0.65rem 0.5rem", 
+                          borderRadius: 10, 
+                          padding: "0.55rem 0.45rem", 
                           textAlign: "center" 
                         }}
                       >
-                        <div style={{ fontSize: "0.65rem", color: "#8e8ea6", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700 }}>
+                        <div style={{ fontSize: "0.62rem", color: "#8e8ea6", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700 }}>
                           Attendance
                         </div>
-                        <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#ffffff", marginTop: "0.1rem" }}>
-                          {student._count.attendance} <span style={{ fontSize: "0.75rem", color: "#f87171" }}>days</span>
+                        <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#ffffff", marginTop: "0.05rem" }}>
+                          {student._count.attendance} <span style={{ fontSize: "0.72rem", color: "#f87171" }}>days</span>
                         </div>
                       </div>
 
@@ -665,15 +855,15 @@ export default function HomePage() {
                         style={{ 
                           background: "rgba(255, 255, 255, 0.03)", 
                           border: "1px solid rgba(255, 255, 255, 0.05)", 
-                          borderRadius: 12, 
-                          padding: "0.65rem 0.5rem", 
+                          borderRadius: 10, 
+                          padding: "0.55rem 0.45rem", 
                           textAlign: "center" 
                         }}
                       >
-                        <div style={{ fontSize: "0.65rem", color: "#8e8ea6", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700 }}>
+                        <div style={{ fontSize: "0.62rem", color: "#8e8ea6", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700 }}>
                           Joined Dojo
                         </div>
-                        <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#cbd5e1", marginTop: "0.25rem" }}>
+                        <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#cbd5e1", marginTop: "0.2rem" }}>
                           {new Date(student.joinedOn).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
                         </div>
                       </div>
@@ -682,17 +872,17 @@ export default function HomePage() {
                     {/* Bottom Link Prompt */}
                     <div 
                       style={{ 
-                        marginTop: "1rem", 
+                        marginTop: "0.85rem", 
                         display: "flex", 
                         alignItems: "center", 
                         justifyContent: "space-between", 
-                        fontSize: "0.75rem", 
+                        fontSize: "0.72rem", 
                         color: "#f87171", 
                         fontWeight: 700 
                       }}
                     >
                       <span>View Training History</span>
-                      <ChevronRight size={14} />
+                      <ChevronRight size={13} />
                     </div>
 
                   </div>
@@ -705,38 +895,39 @@ export default function HomePage() {
 
       {/* ================= FOOTER ================= */}
       <footer 
+        className="footer-wrap"
         style={{ 
           borderTop: "1px solid rgba(255, 255, 255, 0.07)", 
           background: "rgba(6, 6, 10, 0.95)", 
-          padding: "3.5rem 1.5rem 2rem", 
+          padding: "3.25rem 1.5rem 2rem", 
           position: "relative", 
           zIndex: 1 
         }}
       >
-        <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "2rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <Image src="/logo.png" alt="Shanghai Karate" width={48} height={48} style={{ borderRadius: 10 }} />
+        <div className="footer-inner" style={{ maxWidth: 1240, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1.75rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+            <Image src="/logo.png" alt="Shanghai Karate" width={42} height={42} style={{ borderRadius: 9 }} />
             <div>
-              <div style={{ fontWeight: 800, fontSize: "1.05rem", color: "#ffffff", letterSpacing: "0.02em" }}>
+              <div style={{ fontWeight: 800, fontSize: "1rem", color: "#ffffff", letterSpacing: "0.02em" }}>
                 Shanghai Karate Academy
               </div>
-              <div style={{ color: "#8e8ea6", fontSize: "0.8rem", marginTop: 2 }}>
-                Shotokan Karate • 松涛館 空手道
+              <div style={{ color: "#8e8ea6", fontSize: "0.75rem", marginTop: 2 }}>
+                Shotokan Karatedo • 松涛館 空手道
               </div>
             </div>
           </div>
 
           <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", flexWrap: "wrap" }}>
-            <Link href="/admin/login" style={{ color: "#f87171", textDecoration: "none", fontSize: "0.88rem", fontWeight: 700 }}>
+            <Link href="/admin/login" style={{ color: "#f87171", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700 }}>
               Sensei Login
             </Link>
-            <a href="#student-roster" style={{ color: "#8e8ea6", textDecoration: "none", fontSize: "0.88rem", fontWeight: 600 }}>
-              Students
+            <a href="#student-roster" style={{ color: "#8e8ea6", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>
+              Student Directory
             </a>
           </div>
         </div>
 
-        <div style={{ maxWidth: 1240, margin: "2rem auto 0", paddingTop: "1.5rem", borderTop: "1px solid rgba(255, 255, 255, 0.04)", textAlign: "center", color: "#64647a", fontSize: "0.78rem" }}>
+        <div style={{ maxWidth: 1240, margin: "1.75rem auto 0", paddingTop: "1.25rem", borderTop: "1px solid rgba(255, 255, 255, 0.04)", textAlign: "center", color: "#64647a", fontSize: "0.75rem" }}>
           © {new Date().getFullYear()} Shanghai Karate Academy. All rights reserved. Built with pride for our karateka.
         </div>
       </footer>
