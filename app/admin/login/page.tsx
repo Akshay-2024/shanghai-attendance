@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
       <div className="glass animate-slide-up login-card" style={{ width: "100%", maxWidth: 420, borderRadius: 20, padding: "2.5rem", position: "relative" }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <Image src="/logo.png" alt="Shanghai Karate" width={72} height={72} style={{ borderRadius: 14, marginBottom: "1rem", boxShadow: "0 0 30px rgba(192,57,43,0.3)" }} />
+          <Image src="/logo.png" alt="Shanghai Karate" width={72} height={72} priority style={{ borderRadius: 14, marginBottom: "1rem", boxShadow: "0 0 30px rgba(192,57,43,0.3)" }} />
           <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#e8e8f0", letterSpacing: "-0.02em" }}>Admin Login</h1>
           <p style={{ color: "#8888aa", fontSize: "0.85rem", marginTop: "0.3rem" }}>Shanghai Karate Management</p>
         </div>

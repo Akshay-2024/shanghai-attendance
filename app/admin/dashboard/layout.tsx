@@ -80,7 +80,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
         {/* Logo */}
         <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <Image src="/logo.png" alt="Shanghai Karate" width={36} height={36} style={{ borderRadius: 8 }} />
+          <Image src="/logo.png" alt="Shanghai Karate" width={36} height={36} priority style={{ borderRadius: 8 }} />
           <div>
             <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8e8f0" }}>Admin Panel</div>
             <div style={{ fontSize: "0.68rem", color: "#8888aa" }}>Shanghai Karate</div>
