@@ -181,7 +181,7 @@ export default function HomePage() {
                 </span>
               </div>
               <div style={{ fontSize: "0.72rem", color: "#8e8ea6", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                Shotokan Karatedo Academy
+                Shotokan Karate Academy
               </div>
             </div>
           </Link>
@@ -304,37 +304,8 @@ export default function HomePage() {
               onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}
             >
               <Users size={17} />
-              <span>Explore Student Roster</span>
+              <span>Explore Student Chart</span>
               <ChevronRight size={16} />
-            </a>
-
-            <a 
-              href="#dojo-kun" 
-              style={{ 
-                display: "inline-flex", 
-                alignItems: "center", 
-                gap: "0.5rem", 
-                background: "rgba(255, 255, 255, 0.05)", 
-                color: "#e2e8f0", 
-                padding: "0.75rem 1.6rem", 
-                borderRadius: 12, 
-                fontWeight: 600, 
-                fontSize: "0.95rem", 
-                textDecoration: "none",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                transition: "all 0.2s"
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                e.currentTarget.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              <Sparkles size={16} color="#f59e0b" />
-              <span>Dojo Kun &amp; Principles</span>
             </a>
           </div>
 
@@ -357,7 +328,7 @@ export default function HomePage() {
             {[
               { icon: <Users size={20} color="#f87171" />, count: students.length, label: "Enrolled Karateka" },
               { icon: <Trophy size={20} color="#fbbf24" />, count: 11, label: "Belt Ranks" },
-              { icon: <Clock size={20} color="#60a5fa" />, count: "6 Days", label: "Weekly Training" },
+              { icon: <Clock size={20} color="#60a5fa" />, count: "2 Days", label: "Weekly Training" },
               { icon: <Award size={20} color="#4ade80" />, count: "Shotokan", label: "Martial Tradition" },
             ].map((stat, idx) => (
               <div key={idx} style={{ textAlign: "center", padding: "0.5rem" }}>
@@ -732,101 +703,6 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* ================= DOJO KUN & PHILOSOPHY SECTION ================= */}
-      <section id="dojo-kun" style={{ maxWidth: 1240, margin: "0 auto 5rem", padding: "0 1.5rem", position: "relative", zIndex: 1 }}>
-        <div 
-          style={{ 
-            background: "radial-gradient(ellipse at 50% 0%, rgba(192, 57, 43, 0.15) 0%, rgba(18, 18, 28, 0.9) 70%)", 
-            border: "1px solid rgba(192, 57, 43, 0.25)", 
-            borderRadius: 24, 
-            padding: "3rem 2rem",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
-          }}
-        >
-          <div style={{ textAlign: "center", maxWidth: 650, margin: "0 auto 3rem" }}>
-            <span style={{ fontSize: "0.8rem", color: "#f87171", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>
-              道場訓 • Dojo Kun
-            </span>
-            <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.4rem)", fontWeight: 800, color: "#ffffff", marginTop: "0.5rem", marginBottom: "0.75rem" }}>
-              The 5 Pillars of Karatedo
-            </h2>
-            <p style={{ color: "#9aa0b8", fontSize: "0.95rem", lineHeight: 1.6 }}>
-              Established by Master Gichin Funakoshi. Each precept begins with "Hitotsu" (First), signifying that all rules hold equal and paramount importance.
-            </p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" }}>
-            {[
-              {
-                kanji: "一、人格完成に努むること",
-                en: "Seek Perfection of Character",
-                desc: "Karate is not about defeating others, but about mastering yourself and building unshakeable integrity."
-              },
-              {
-                kanji: "一、誠の道を守ること",
-                en: "Be Faithful & Sincere",
-                desc: "Honor your word, respect your masters and peers, and practice with pure honesty in heart and technique."
-              },
-              {
-                kanji: "一、努力の精神を養うこと",
-                en: "Endeavor & Strive",
-                desc: "Perseverance in the face of exhaustion. True martial power comes from relentless repetition."
-              },
-              {
-                kanji: "一、礼儀を重んずること",
-                en: "Respect Etiquette & Others",
-                desc: "Karate begins and ends with courtesy. Respect toward everyone in and outside the dojo."
-              },
-              {
-                kanji: "一、血気の勇を戒むること",
-                en: "Refrain from Violent Behavior",
-                desc: "The highest victory is to resolve conflict without striking. Self-control is supreme strength."
-              },
-            ].map((pillar, idx) => (
-              <div 
-                key={idx} 
-                style={{ 
-                  background: "rgba(10, 10, 16, 0.6)", 
-                  border: "1px solid rgba(255, 255, 255, 0.08)", 
-                  borderRadius: 18, 
-                  padding: "1.5rem",
-                  transition: "all 0.25s"
-                }}
-              >
-                <div style={{ fontSize: "0.78rem", color: "#f59e0b", fontWeight: 700, marginBottom: "0.35rem" }}>
-                  {pillar.kanji}
-                </div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#ffffff", marginBottom: "0.5rem" }}>
-                  {pillar.en}
-                </h3>
-                <p style={{ fontSize: "0.85rem", color: "#8e8ea6", lineHeight: 1.5, margin: 0 }}>
-                  {pillar.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Master Quote Banner */}
-          <div 
-            style={{ 
-              marginTop: "3rem", 
-              padding: "1.5rem", 
-              background: "rgba(192, 57, 43, 0.12)", 
-              borderLeft: "4px solid #c0392b", 
-              borderRadius: "0 16px 16px 0",
-              textAlign: "center"
-            }}
-          >
-            <p style={{ fontStyle: "italic", color: "#f1f1f6", fontSize: "1rem", margin: 0, lineHeight: 1.6 }}>
-              “The ultimate aim of Karate lies not in victory or defeat, but in the perfection of the character of its participants.”
-            </p>
-            <div style={{ color: "#f87171", fontSize: "0.8rem", fontWeight: 700, marginTop: "0.5rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              — Gichin Funakoshi, Father of Modern Karate
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ================= FOOTER ================= */}
       <footer 
         style={{ 
@@ -845,7 +721,7 @@ export default function HomePage() {
                 Shanghai Karate Academy
               </div>
               <div style={{ color: "#8e8ea6", fontSize: "0.8rem", marginTop: 2 }}>
-                Shotokan Karatedo • 松涛館 空手道
+                Shotokan Karate • 松涛館 空手道
               </div>
             </div>
           </div>
@@ -856,9 +732,6 @@ export default function HomePage() {
             </Link>
             <a href="#student-roster" style={{ color: "#8e8ea6", textDecoration: "none", fontSize: "0.88rem", fontWeight: 600 }}>
               Students
-            </a>
-            <a href="#dojo-kun" style={{ color: "#8e8ea6", textDecoration: "none", fontSize: "0.88rem", fontWeight: 600 }}>
-              Dojo Kun
             </a>
           </div>
         </div>
