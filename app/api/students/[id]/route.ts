@@ -97,16 +97,32 @@ export async function DELETE(
 ) {
   const { id } = await params;
   try {
-    const student = await prisma.student.update({ where: { id }, data: { active: false } });
     const session = await auth();
-    const actor = session?.user?.name || "admin";
+
+    // Strict Authorization: Only Sensei (Master Admin) has permission to delete student data
+    if (!session || session.user?.name !== "sensei") {
+      return NextResponse.json(
+        { error: "Access Denied: Only Master Sensei has permission to permanently delete student records." },
+        { status: 403 }
+      );
+    }
+
+    const student = await prisma.student.delete({
+      where: { id },
+    });
+
     await logActivity(
-      actor,
-      "DEACTIVATE_STUDENT",
-      `Marked student as left / discontinued: ${student.name} (${student.belt} Belt)`
+      "sensei",
+      "DELETE_STUDENT",
+      `Permanently deleted student and all associated records: ${student.name} (${student.belt} Belt)`
     );
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: "Failed to delete student" }, { status: 500 });
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Student ${student.name} and all associated records have been permanently deleted.` 
+    });
+  } catch (error) {
+    console.error("Failed to delete student:", error);
+    return NextResponse.json({ error: "Failed to delete student data" }, { status: 500 });
   }
 }

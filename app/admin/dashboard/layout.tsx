@@ -139,7 +139,13 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.6rem 0.875rem", borderRadius: 10, color: "#8888aa", textDecoration: "none", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
             ← Student Portal
           </Link>
-          <button onClick={() => signOut({ callbackUrl: "/admin/login" })} style={{ display: "flex", alignItems: "center", gap: "0.75rem", width: "100%", padding: "0.6rem 0.875rem", borderRadius: 10, background: "rgba(192,57,43,0.1)", border: "1px solid rgba(192,57,43,0.2)", color: "#e74c3c", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>
+          <button 
+            onClick={async () => {
+              await signOut({ redirect: false });
+              window.location.href = "/admin/login";
+            }} 
+            style={{ display: "flex", alignItems: "center", gap: "0.75rem", width: "100%", padding: "0.6rem 0.875rem", borderRadius: 10, background: "rgba(192,57,43,0.1)", border: "1px solid rgba(192,57,43,0.2)", color: "#e74c3c", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
+          >
             <LogOut size={15} />Sign Out
           </button>
         </div>

@@ -126,11 +126,19 @@ export default function ReportsTab() {
           <div className="glass" style={{ borderRadius: 16, padding: "1.5rem", width: "100%" }}>
             <h3 style={{ fontWeight: 700, fontSize: "0.95rem", color: "#e8e8f0", marginBottom: "1.25rem" }}>Attendance % by Student</h3>
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fill: "#8888aa", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <BarChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
+                <XAxis 
+                  dataKey="name" 
+                  interval={0} 
+                  tick={{ fill: "#8888aa", fontSize: 11 }} 
+                  axisLine={false} 
+                  tickLine={false} 
+                />
                 <YAxis tick={{ fill: "#8888aa", fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={v => `${v}%`} />
                 <Tooltip
-                  contentStyle={{ background: "#1a1a26", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#e8e8f0" }}
+                  contentStyle={{ background: "#1a1a26", border: "1px solid rgba(255, 255, 255, 0.15)", borderRadius: 10, color: "#ffffff" }}
+                  itemStyle={{ color: "#ffffff", fontWeight: 600 }}
+                  labelStyle={{ color: "#ffffff", fontWeight: 700, marginBottom: "0.25rem" }}
                   formatter={(v: any) => [`${v}%`, "Attendance"]}
                 />
                 <Bar dataKey="pct" radius={[6, 6, 0, 0]}>
@@ -149,7 +157,11 @@ export default function ReportsTab() {
                   <Pie data={feeData} cx="50%" cy="50%" innerRadius={75} outerRadius={120} paddingAngle={4} dataKey="value">
                     {feeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#1a1a26", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#e8e8f0" }} />
+                  <Tooltip 
+                    contentStyle={{ background: "#1a1a26", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, color: "#ffffff" }} 
+                    itemStyle={{ color: "#ffffff", fontWeight: 600 }}
+                    labelStyle={{ color: "#ffffff", fontWeight: 700 }}
+                  />
                   <Legend wrapperStyle={{ color: "#8888aa", fontSize: 13 }} />
                 </PieChart>
               </ResponsiveContainer>

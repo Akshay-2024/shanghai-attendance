@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { 
   Plus, Pencil, Trash2, X, Save, UserCheck, UserMinus, UserX, 
-  RotateCcw, Upload, Image as ImageIcon, Loader2, Search, Users, AlertCircle 
+  RotateCcw, Upload, Image as ImageIcon, Loader2, Search, Users, AlertCircle, ShieldCheck 
 } from "lucide-react";
 
 interface Student {
@@ -94,6 +94,7 @@ export default function StudentsTab() {
   const [modal, setModal] = useState<"add" | "edit" | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState<string | null>(null);
+  const [isSensei, setIsSensei] = useState(false);
   
   // Status filter: "ACTIVE" (In Class), "LEFT" (Left Class), or "ALL"
   const [statusFilter, setStatusFilter] = useState<"ACTIVE" | "LEFT" | "ALL">("ACTIVE");
@@ -102,7 +103,10 @@ export default function StudentsTab() {
 
   // Status toggle confirmation modal
   const [statusModal, setStatusModal] = useState<{ student: Student; action: "leave" | "re-enroll" } | null>(null);
-  const [permanentDeleteId, setPermanentDeleteId] = useState<string | null>(null);
+  
+  // Sensei Permanent Delete Modal
+  const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
@@ -123,7 +127,17 @@ export default function StudentsTab() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { 
+    load(); 
+    fetch("/api/auth/me")
+      .then(r => r.json())
+      .then(data => {
+        if (data.isSensei || data.user?.name === "sensei") {
+          setIsSensei(true);
+        }
+      })
+      .catch(console.error);
+  }, [load]);
 
   function openAdd() {
     setForm({ 
@@ -242,15 +256,24 @@ export default function StudentsTab() {
     }
   }
 
-  // Permanent Delete
+  // Sensei Master Action: Permanent Delete Student & All Records
   async function confirmPermanentDelete() {
-    if (!permanentDeleteId) return;
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await fetch(`/api/students/${permanentDeleteId}`, { method: "DELETE" });
-      setPermanentDeleteId(null);
+      const res = await fetch(`/api/students/${deleteTarget.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "Failed to delete student record");
+        return;
+      }
+      setDeleteTarget(null);
       await load();
     } catch (err) {
       console.error("Delete error:", err);
+      alert("Error deleting student data");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -282,7 +305,25 @@ export default function StudentsTab() {
       {/* Page Title & Add Button */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.85rem", marginBottom: "1.25rem", width: "100%" }}>
         <div>
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#e8e8f0" }}>Manage Students</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#e8e8f0" }}>Manage Students</h2>
+            {isSensei && (
+              <span style={{ 
+                background: "rgba(243,156,18,0.15)", 
+                border: "1px solid rgba(243,156,18,0.35)", 
+                color: "#f39c12", 
+                fontSize: "0.7rem", 
+                fontWeight: 700, 
+                padding: "0.15rem 0.55rem", 
+                borderRadius: 50, 
+                display: "inline-flex", 
+                alignItems: "center", 
+                gap: "0.3rem" 
+              }}>
+                <ShieldCheck size={12} /> Sensei Master Mode
+              </span>
+            )}
+          </div>
           <p style={{ color: "#8888aa", fontSize: "0.82rem", marginTop: "0.15rem" }}>
             Track active karateka in class and manage left / discontinued students
           </p>
@@ -564,6 +605,31 @@ export default function StudentsTab() {
                             title="Re-enroll this student back to active training"
                           >
                             <RotateCcw size={12} /> Re-enroll
+                          </button>
+                        )}
+
+                        {/* SENSEI MASTER PRIVILEGE: Permanent Delete Student Data */}
+                        {isSensei && (
+                          <button 
+                            onClick={() => setDeleteTarget(s)} 
+                            style={{ 
+                              background: "rgba(192,57,43,0.18)", 
+                              border: "1px solid rgba(192,57,43,0.4)", 
+                              color: "#f87171", 
+                              padding: "0.35rem 0.65rem", 
+                              borderRadius: 8, 
+                              cursor: "pointer", 
+                              display: "inline-flex", 
+                              alignItems: "center", 
+                              gap: "0.35rem", 
+                              fontSize: "0.78rem",
+                              fontWeight: 700,
+                              transition: "all 0.2s"
+                            }}
+                            title="Sensei Master Privilege: Permanently delete student and records"
+                          >
+                            <Trash2 size={12} color="#f87171" />
+                            <span>Delete</span>
                           </button>
                         )}
                       </div>
@@ -873,6 +939,95 @@ export default function StudentsTab() {
                 ) : (
                   <><RotateCcw size={15} /> Re-enroll</>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sensei Master Permanent Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="modal-backdrop" onClick={() => !deleting && setDeleteTarget(null)} style={{ position: "fixed", inset: 0, zIndex: 65, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.85rem" }}>
+          <div className="modal-box" style={{ maxWidth: 440, width: "100%", border: "1px solid rgba(192,57,43,0.4)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
+              <div style={{ 
+                width: 56, 
+                height: 56, 
+                borderRadius: "50%", 
+                background: "rgba(192,57,43,0.18)", 
+                border: "2px solid rgba(192,57,43,0.4)",
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center", 
+                margin: "0 auto 1rem" 
+              }}>
+                <Trash2 size={26} color="#e74c3c" />
+              </div>
+
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", color: "#f39c12", fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.35rem" }}>
+                <ShieldCheck size={14} /> Sensei Master Action
+              </div>
+
+              <h3 style={{ fontWeight: 800, fontSize: "1.2rem", color: "#ffffff", marginBottom: "0.5rem" }}>
+                Permanently Delete Student?
+              </h3>
+
+              <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "0.85rem", margin: "1rem 0", display: "flex", alignItems: "center", gap: "0.75rem", textAlign: "left" }}>
+                <StudentAvatar name={deleteTarget.name} photoUrl={deleteTarget.photoUrl} size={42} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, color: "#ffffff", fontSize: "0.95rem" }}>{deleteTarget.name}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#8888aa", marginTop: 2 }}>
+                    {BELT_LABELS[deleteTarget.belt] || deleteTarget.belt} Belt · Joined {new Date(deleteTarget.joinedOn).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ 
+                background: "rgba(192,57,43,0.12)", 
+                border: "1px solid rgba(192,57,43,0.3)", 
+                borderRadius: 10, 
+                padding: "0.75rem 0.9rem", 
+                textAlign: "left",
+                fontSize: "0.8rem",
+                color: "#fca5a5",
+                lineHeight: 1.5
+              }}>
+                <strong>Warning:</strong> You are about to permanently erase <strong>{deleteTarget.name}</strong> from the database along with all past attendance logs and fee payment records. This action cannot be undone.
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button 
+                onClick={() => setDeleteTarget(null)} 
+                className="btn-ghost" 
+                style={{ flex: 1, justifyContent: "center" }}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              
+              <button 
+                onClick={confirmPermanentDelete} 
+                style={{ 
+                  flex: 1, 
+                  justifyContent: "center", 
+                  background: "linear-gradient(135deg,#c0392b,#96281b)", 
+                  color: "#fff", 
+                  border: "none", 
+                  borderRadius: 10, 
+                  padding: "0.65rem", 
+                  fontWeight: 700, 
+                  fontSize: "0.85rem",
+                  cursor: "pointer", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: "0.45rem",
+                  boxShadow: "0 4px 18px rgba(192,57,43,0.45)"
+                }}
+                disabled={deleting}
+              >
+                <Trash2 size={14} />
+                {deleting ? "Deleting..." : "Permanently Delete"}
               </button>
             </div>
           </div>
