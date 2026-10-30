@@ -19,6 +19,15 @@ export const metadata: Metadata = {
   description:
     "Official attendance and student management system for Shanghai Karate Dojo. Track classes, belt progress, and fee payments.",
   keywords: ["karate", "attendance", "dojo", "shanghai karate", "martial arts"],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/icon.png", sizes: "64x64", type: "image/png" },
+      { url: "/logo.png", sizes: "550x542", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
