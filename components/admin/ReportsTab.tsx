@@ -71,8 +71,8 @@ export default function ReportsTab() {
   const COLORS = ["#c0392b","#e74c3c","#f39c12","#2ecc71","#3498db","#9b59b6","#1abc9c"];
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
+    <div style={{ width: "100%", maxWidth: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem", width: "100%" }}>
         <div>
           <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#e8e8f0" }}>Reports</h2>
           <p style={{ color: "#8888aa", fontSize: "0.85rem", marginTop: "0.2rem" }}>Monthly attendance and fee analytics</p>
@@ -84,16 +84,16 @@ export default function ReportsTab() {
       </div>
 
       {loading ? (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
-          {[...Array(2)].map((_,i) => <div key={i} className="skeleton" style={{ height: 320, borderRadius: 16 }} />)}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", width: "100%" }}>
+          {[...Array(2)].map((_,i) => <div key={i} className="skeleton" style={{ height: 340, borderRadius: 16 }} />)}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "1.25rem", width: "100%" }}>
           {/* Attendance Chart */}
-          <div className="glass" style={{ borderRadius: 16, padding: "1.5rem" }}>
+          <div className="glass" style={{ borderRadius: 16, padding: "1.5rem", width: "100%" }}>
             <h3 style={{ fontWeight: 700, fontSize: "0.95rem", color: "#e8e8f0", marginBottom: "1.25rem" }}>Attendance % by Student</h3>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={attendanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis dataKey="name" tick={{ fill: "#8888aa", fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#8888aa", fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={v => `${v}%`} />
                 <Tooltip
@@ -108,12 +108,12 @@ export default function ReportsTab() {
           </div>
 
           {/* Fee Pie Chart */}
-          <div className="glass" style={{ borderRadius: 16, padding: "1.5rem" }}>
+          <div className="glass" style={{ borderRadius: 16, padding: "1.5rem", width: "100%" }}>
             <h3 style={{ fontWeight: 700, fontSize: "0.95rem", color: "#e8e8f0", marginBottom: "1.25rem" }}>Fee Collection Status</h3>
             {feeData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={320}>
                 <PieChart>
-                  <Pie data={feeData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={4} dataKey="value">
+                  <Pie data={feeData} cx="50%" cy="50%" innerRadius={75} outerRadius={120} paddingAngle={4} dataKey="value">
                     {feeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                   </Pie>
                   <Tooltip contentStyle={{ background: "#1a1a26", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#e8e8f0" }} />
@@ -121,15 +121,15 @@ export default function ReportsTab() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div style={{ height: 280, display: "flex", alignItems: "center", justifyContent: "center", color: "#8888aa" }}>No fee data for this month</div>
+              <div style={{ height: 320, display: "flex", alignItems: "center", justifyContent: "center", color: "#8888aa" }}>No fee data for this month</div>
             )}
           </div>
 
           {/* Detailed Table */}
-          <div className="glass" style={{ borderRadius: 16, padding: "1.25rem", gridColumn: "1 / -1", width: "100%", maxWidth: "100%", overflow: "hidden" }}>
+          <div className="glass" style={{ borderRadius: 16, padding: "1.5rem", gridColumn: "1 / -1", width: "100%", maxWidth: "100%", overflow: "hidden" }}>
             <h3 style={{ fontWeight: 700, fontSize: "0.95rem", color: "#e8e8f0", marginBottom: "1.25rem" }}>Student Summary</h3>
             <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "100%" }}>
-              <table className="dojo-table" style={{ minWidth: 550 }}>
+              <table className="dojo-table" style={{ width: "100%", minWidth: 600 }}>
                 <thead>
                   <tr><th>Student</th><th>Present</th><th>Total</th><th>Attendance %</th><th>Fee Status</th><th>Paid</th></tr>
                 </thead>

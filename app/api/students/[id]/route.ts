@@ -48,6 +48,7 @@ export async function PUT(
         photoUrl: body.photoUrl,
         monthlyFee: parseFloat(body.monthlyFee) || 0,
         joinedOn: body.joinedOn ? new Date(body.joinedOn) : undefined,
+        active: body.active !== undefined ? Boolean(body.active) : undefined,
       },
     });
     const session = await auth();
@@ -55,12 +56,38 @@ export async function PUT(
     await logActivity(
       actor,
       "UPDATE_STUDENT",
-      `Updated student: ${student.name} (${student.belt} Belt, Monthly Fee: ₹${student.monthlyFee})`
+      `Updated student: ${student.name} (${student.belt} Belt, Status: ${student.active ? "In Class" : "Left Class"})`
     );
 
     return NextResponse.json(student);
   } catch {
     return NextResponse.json({ error: "Failed to update student" }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    const body = await req.json();
+    const active = Boolean(body.active);
+    const student = await prisma.student.update({
+      where: { id },
+      data: { active },
+    });
+    const session = await auth();
+    const actor = session?.user?.name || "admin";
+    await logActivity(
+      actor,
+      active ? "REACTIVATE_STUDENT" : "DEACTIVATE_STUDENT",
+      `${active ? "Re-enrolled / Activated" : "Marked as Left / Discontinued"} student: ${student.name} (${student.belt} Belt)`
+    );
+
+    return NextResponse.json(student);
+  } catch {
+    return NextResponse.json({ error: "Failed to update student status" }, { status: 500 });
   }
 }
 
@@ -76,7 +103,7 @@ export async function DELETE(
     await logActivity(
       actor,
       "DEACTIVATE_STUDENT",
-      `Deactivated student: ${student.name} (${student.belt} Belt)`
+      `Marked student as left / discontinued: ${student.name} (${student.belt} Belt)`
     );
     return NextResponse.json({ success: true });
   } catch {

@@ -111,7 +111,7 @@ export default function AttendanceTab() {
   const total = students.length;
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ width: "100%", maxWidth: 1100, margin: "0 auto" }}>
       <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#e8e8f0", marginBottom: "0.5rem" }}>Mark Attendance</h2>
       <p style={{ color: "#8888aa", fontSize: "0.85rem", marginBottom: "1.5rem" }}>Check students who attended class on the selected date.</p>
 

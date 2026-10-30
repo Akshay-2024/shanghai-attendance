@@ -137,7 +137,7 @@ export default function FeesTab() {
   const pctCollected = summary.totalDue ? Math.round((summary.totalPaid / summary.totalDue) * 100) : 0;
 
   return (
-    <div style={{ maxWidth: 1050, margin: "0 auto" }}>
+    <div style={{ width: "100%", maxWidth: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
         <div>
           <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#e8e8f0" }}>Fee Management</h2>

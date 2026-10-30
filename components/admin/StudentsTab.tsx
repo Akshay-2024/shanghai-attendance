@@ -1,11 +1,20 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Plus, Pencil, Trash2, X, Save, UserCheck, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
+import { 
+  Plus, Pencil, Trash2, X, Save, UserCheck, UserMinus, UserX, 
+  RotateCcw, Upload, Image as ImageIcon, Loader2, Search, Users, AlertCircle 
+} from "lucide-react";
 
 interface Student {
-  id: string; name: string; belt: string; dob: string | null;
-  phone: string | null; photoUrl: string | null; monthlyFee: number;
-  joinedOn: string; active: boolean;
+  id: string;
+  name: string;
+  belt: string;
+  dob: string | null;
+  phone: string | null;
+  photoUrl: string | null;
+  monthlyFee: number;
+  joinedOn: string;
+  active: boolean;
 }
 
 const BELTS = [
@@ -58,6 +67,7 @@ const emptyForm = {
   photoUrl: "",
   monthlyFee: "",
   joinedOn: new Date().toISOString().split("T")[0],
+  active: true,
 };
 
 function StudentAvatar({ name, photoUrl, size = 36 }: { name: string; photoUrl?: string | null; size?: number }) {
@@ -81,27 +91,46 @@ function StudentAvatar({ name, photoUrl, size = 36 }: { name: string; photoUrl?:
 export default function StudentsTab() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState<"add"|"edit"|null>(null);
+  const [modal, setModal] = useState<"add" | "edit" | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [editId, setEditId] = useState<string|null>(null);
-  const [deleteId, setDeleteId] = useState<string|null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  
+  // Status filter: "ACTIVE" (In Class), "LEFT" (Left Class), or "ALL"
+  const [statusFilter, setStatusFilter] = useState<"ACTIVE" | "LEFT" | "ALL">("ACTIVE");
+  const [search, setSearch] = useState("");
+  const [beltFilter, setBeltFilter] = useState("ALL");
+
+  // Status toggle confirmation modal
+  const [statusModal, setStatusModal] = useState<{ student: Student; action: "leave" | "re-enroll" } | null>(null);
+  const [permanentDeleteId, setPermanentDeleteId] = useState<string | null>(null);
+
   const [saving, setSaving] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string|null>(null);
-  const [showInactive, setShowInactive] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
-    const r = await fetch("/api/students");
-    const data = await r.json();
-    setStudents(data);
-    setLoading(false);
+    setLoading(true);
+    try {
+      const r = await fetch("/api/students?includeInactive=true");
+      const data = await r.json();
+      setStudents(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load students", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   function openAdd() {
-    setForm({ ...emptyForm, joinedOn: new Date().toISOString().split("T")[0] });
+    setForm({ 
+      ...emptyForm, 
+      joinedOn: new Date().toISOString().split("T")[0],
+      active: true 
+    });
     setUploadError(null);
     setModal("add");
   }
@@ -115,6 +144,7 @@ export default function StudentsTab() {
       photoUrl: s.photoUrl || "",
       monthlyFee: String(s.monthlyFee),
       joinedOn: s.joinedOn ? s.joinedOn.split("T")[0] : new Date().toISOString().split("T")[0],
+      active: s.active,
     });
     setUploadError(null);
     setEditId(s.id);
@@ -169,68 +199,373 @@ export default function StudentsTab() {
 
   async function saveStudent() {
     setSaving(true);
-    if (modal === "add") {
-      await fetch("/api/students", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-    } else {
-      await fetch(`/api/students/${editId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+    try {
+      if (modal === "add") {
+        await fetch("/api/students", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify(form) 
+        });
+      } else {
+        await fetch(`/api/students/${editId}`, { 
+          method: "PUT", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify(form) 
+        });
+      }
+      setModal(null);
+      await load();
+    } catch (err) {
+      console.error("Save error:", err);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false); setModal(null); load();
   }
 
-  async function confirmDelete() {
-    if (!deleteId) return;
-    await fetch(`/api/students/${deleteId}`, { method: "DELETE" });
-    setDeleteId(null); load();
+  // Toggle student between In Class and Left Class
+  async function confirmStatusChange() {
+    if (!statusModal) return;
+    setStatusSaving(true);
+    const newActive = statusModal.action === "re-enroll";
+    try {
+      await fetch(`/api/students/${statusModal.student.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: newActive }),
+      });
+      setStatusModal(null);
+      await load();
+    } catch (err) {
+      console.error("Status toggle error:", err);
+    } finally {
+      setStatusSaving(false);
+    }
   }
 
-  const displayed = students.filter(s => showInactive ? true : s.active);
+  // Permanent Delete
+  async function confirmPermanentDelete() {
+    if (!permanentDeleteId) return;
+    try {
+      await fetch(`/api/students/${permanentDeleteId}`, { method: "DELETE" });
+      setPermanentDeleteId(null);
+      await load();
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  }
+
+  const activeCount = students.filter(s => s.active).length;
+  const leftCount = students.filter(s => !s.active).length;
+  const totalCount = students.length;
+
+  const displayed = students.filter(s => {
+    // Status Filter
+    if (statusFilter === "ACTIVE" && !s.active) return false;
+    if (statusFilter === "LEFT" && s.active) return false;
+
+    // Search query
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const matchName = s.name.toLowerCase().includes(q);
+      const matchPhone = s.phone && s.phone.includes(q);
+      if (!matchName && !matchPhone) return false;
+    }
+
+    // Belt Rank
+    if (beltFilter !== "ALL" && s.belt !== beltFilter) return false;
+
+    return true;
+  });
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+    <div style={{ width: "100%", maxWidth: "100%" }}>
+      {/* Page Title & Add Button */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.85rem", marginBottom: "1.25rem", width: "100%" }}>
         <div>
           <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#e8e8f0" }}>Manage Students</h2>
-          <p style={{ color: "#8888aa", fontSize: "0.82rem", marginTop: "0.15rem" }}>{students.length} total students</p>
+          <p style={{ color: "#8888aa", fontSize: "0.82rem", marginTop: "0.15rem" }}>
+            Track active karateka in class and manage left / discontinued students
+          </p>
         </div>
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.45rem", color: "#8888aa", fontSize: "0.8rem", cursor: "pointer", userSelect: "none" }}>
-            <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} style={{ accentColor: "#c0392b" }} />
-            Show inactive
-          </label>
-          <button className="btn-primary" onClick={openAdd} style={{ padding: "0.55rem 1.1rem", fontSize: "0.85rem" }}><Plus size={15} />Add Student</button>
-        </div>
+        <button 
+          className="btn-primary" 
+          onClick={openAdd} 
+          style={{ padding: "0.55rem 1.15rem", fontSize: "0.85rem" }}
+        >
+          <Plus size={15} /> Add Student
+        </button>
       </div>
 
+      {/* Status Segmented Tabs (In Class vs Left Students vs All) */}
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+        <button
+          onClick={() => setStatusFilter("ACTIVE")}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: 10,
+            fontSize: "0.84rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            border: statusFilter === "ACTIVE" ? "1px solid rgba(46,204,113,0.5)" : "1px solid rgba(255,255,255,0.08)",
+            background: statusFilter === "ACTIVE" ? "rgba(46,204,113,0.15)" : "rgba(255,255,255,0.03)",
+            color: statusFilter === "ACTIVE" ? "#2ecc71" : "#8888aa",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.45rem",
+            transition: "all 0.2s"
+          }}
+        >
+          <UserCheck size={15} />
+          <span>In Class ({activeCount})</span>
+        </button>
+
+        <button
+          onClick={() => setStatusFilter("LEFT")}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: 10,
+            fontSize: "0.84rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            border: statusFilter === "LEFT" ? "1px solid rgba(231,76,60,0.5)" : "1px solid rgba(255,255,255,0.08)",
+            background: statusFilter === "LEFT" ? "rgba(192,57,43,0.2)" : "rgba(255,255,255,0.03)",
+            color: statusFilter === "LEFT" ? "#f87171" : "#8888aa",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.45rem",
+            transition: "all 0.2s"
+          }}
+        >
+          <UserX size={15} />
+          <span>Left Class ({leftCount})</span>
+        </button>
+
+        <button
+          onClick={() => setStatusFilter("ALL")}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: 10,
+            fontSize: "0.84rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            border: statusFilter === "ALL" ? "1px solid rgba(255,255,255,0.3)" : "1px solid rgba(255,255,255,0.08)",
+            background: statusFilter === "ALL" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
+            color: statusFilter === "ALL" ? "#ffffff" : "#8888aa",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.45rem",
+            transition: "all 0.2s"
+          }}
+        >
+          <Users size={15} />
+          <span>All Students ({totalCount})</span>
+        </button>
+      </div>
+
+      {/* Search & Belt Filters */}
+      <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
+        <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
+          <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#8888aa" }} />
+          <input
+            type="text"
+            placeholder="Search by student name or phone..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="input-dojo"
+            style={{ width: "100%", paddingLeft: "2.3rem", height: 40, fontSize: "0.85rem" }}
+          />
+        </div>
+        <select
+          value={beltFilter}
+          onChange={e => setBeltFilter(e.target.value)}
+          className="input-dojo"
+          style={{ width: "auto", minWidth: 140, height: 40, fontSize: "0.84rem", backgroundColor: "#141420", color: "#fff" }}
+        >
+          <option value="ALL">All Belts</option>
+          {BELTS.map(b => (
+            <option key={b} value={b}>{BELT_LABELS[b] || b} Belt</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Info Banner when viewing Left Students */}
+      {statusFilter === "LEFT" && (
+        <div style={{ 
+          background: "rgba(192,57,43,0.1)", 
+          border: "1px solid rgba(192,57,43,0.25)", 
+          borderRadius: 12, 
+          padding: "0.75rem 1rem", 
+          marginBottom: "1rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          fontSize: "0.82rem",
+          color: "#f87171"
+        }}>
+          <AlertCircle size={16} style={{ flexShrink: 0 }} />
+          <span>
+            These students have left the class or discontinued training. They are hidden from daily attendance sheets, but their complete training history & fees are preserved.
+          </span>
+        </div>
+      )}
+
+      {/* Student Table */}
       {loading ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-          {[...Array(6)].map((_,i) => <div key={i} className="skeleton" style={{ height: 64, borderRadius: 12 }} />)}
+          {[...Array(6)].map((_, i) => <div key={i} className="skeleton" style={{ height: 64, borderRadius: 12 }} />)}
+        </div>
+      ) : displayed.length === 0 ? (
+        <div className="glass" style={{ borderRadius: 16, padding: "3rem 1.5rem", textAlign: "center" }}>
+          <Users size={36} color="#8888aa" style={{ margin: "0 auto 0.75rem", opacity: 0.6 }} />
+          <h3 style={{ fontSize: "1.1rem", color: "#e8e8f0", fontWeight: 700 }}>
+            {statusFilter === "LEFT" ? "No Left / Discontinued Students" : "No Students Found"}
+          </h3>
+          <p style={{ color: "#8888aa", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+            {statusFilter === "LEFT" 
+              ? "All enrolled karateka are currently active in class." 
+              : "No students match the current search or filters."}
+          </p>
         </div>
       ) : (
         <div className="glass" style={{ borderRadius: 16, overflow: "hidden", width: "100%", maxWidth: "100%" }}>
           <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "100%" }}>
-            <table className="dojo-table" style={{ minWidth: 620 }}>
+            <table className="dojo-table" style={{ minWidth: 680 }}>
               <thead>
                 <tr>
-                  <th>Student</th><th>Belt</th><th>Phone</th><th>Monthly Fee</th><th>Joined</th><th>Actions</th>
+                  <th>Student</th>
+                  <th>Belt</th>
+                  <th>Class Status</th>
+                  <th>Phone</th>
+                  <th>Monthly Fee</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {displayed.map(s => (
-                  <tr key={s.id} style={{ opacity: s.active ? 1 : 0.4 }}>
+                  <tr key={s.id} style={{ opacity: s.active ? 1 : 0.65, background: s.active ? "transparent" : "rgba(192,57,43,0.03)" }}>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                         <StudentAvatar name={s.name} photoUrl={s.photoUrl} size={38} />
-                        <span style={{ fontWeight: 600, color: "#e8e8f0" }}>{s.name}</span>
+                        <div>
+                          <span style={{ fontWeight: 600, color: "#e8e8f0", display: "block" }}>{s.name}</span>
+                          {!s.active && (
+                            <span style={{ fontSize: "0.68rem", color: "#f87171", fontWeight: 600 }}>Left Class</span>
+                          )}
+                        </div>
                       </div>
                     </td>
-                    <td><span className={BELT_CLASS[s.belt] || "belt-white"} style={{ fontSize: "0.7rem", fontWeight: 700, padding: "0.2rem 0.6rem", borderRadius: 50, textTransform: "uppercase", letterSpacing: "0.05em" }}>{BELT_LABELS[s.belt] || s.belt}</span></td>
+                    <td>
+                      <span className={BELT_CLASS[s.belt] || "belt-white"} style={{ fontSize: "0.7rem", fontWeight: 700, padding: "0.2rem 0.6rem", borderRadius: 50, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        {BELT_LABELS[s.belt] || s.belt}
+                      </span>
+                    </td>
+                    <td>
+                      {s.active ? (
+                        <span style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                          background: "rgba(46,204,113,0.12)",
+                          color: "#2ecc71",
+                          border: "1px solid rgba(46,204,113,0.28)",
+                          padding: "0.2rem 0.6rem",
+                          borderRadius: 50,
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          whiteSpace: "nowrap"
+                        }}>
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#2ecc71" }} />
+                          In Class
+                        </span>
+                      ) : (
+                        <span style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                          background: "rgba(231,76,60,0.14)",
+                          color: "#f87171",
+                          border: "1px solid rgba(231,76,60,0.3)",
+                          padding: "0.2rem 0.6rem",
+                          borderRadius: 50,
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          whiteSpace: "nowrap"
+                        }}>
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#e74c3c" }} />
+                          Left Class
+                        </span>
+                      )}
+                    </td>
                     <td style={{ color: "#8888aa" }}>{s.phone || "—"}</td>
                     <td style={{ color: "#f39c12", fontWeight: 600 }}>₹{s.monthlyFee}</td>
-                    <td style={{ color: "#8888aa" }}>{new Date(s.joinedOn).toLocaleDateString("en-IN", { year: "numeric", month: "short" })}</td>
+                    <td style={{ color: "#8888aa" }}>
+                      {new Date(s.joinedOn).toLocaleDateString("en-IN", { year: "numeric", month: "short" })}
+                    </td>
                     <td>
-                      <div style={{ display: "flex", gap: "0.5rem" }}>
-                        <button onClick={() => openEdit(s)} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#e8e8f0", padding: "0.35rem 0.75rem", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.8rem" }}><Pencil size={13} />Edit</button>
-                        {s.active && <button onClick={() => setDeleteId(s.id)} style={{ background: "rgba(192,57,43,0.1)", border: "1px solid rgba(192,57,43,0.2)", color: "#e74c3c", padding: "0.35rem 0.75rem", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.8rem" }}><Trash2 size={13} />Delete</button>}
+                      <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                        {/* Edit Button */}
+                        <button 
+                          onClick={() => openEdit(s)} 
+                          style={{ 
+                            background: "rgba(255,255,255,0.06)", 
+                            border: "1px solid rgba(255,255,255,0.1)", 
+                            color: "#e8e8f0", 
+                            padding: "0.35rem 0.65rem", 
+                            borderRadius: 8, 
+                            cursor: "pointer", 
+                            display: "inline-flex", 
+                            alignItems: "center", 
+                            gap: "0.35rem", 
+                            fontSize: "0.78rem" 
+                          }}
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+
+                        {/* Active: Option to Mark as Left */}
+                        {s.active ? (
+                          <button 
+                            onClick={() => setStatusModal({ student: s, action: "leave" })} 
+                            style={{ 
+                              background: "rgba(192,57,43,0.12)", 
+                              border: "1px solid rgba(192,57,43,0.28)", 
+                              color: "#e74c3c", 
+                              padding: "0.35rem 0.65rem", 
+                              borderRadius: 8, 
+                              cursor: "pointer", 
+                              display: "inline-flex", 
+                              alignItems: "center", 
+                              gap: "0.35rem", 
+                              fontSize: "0.78rem",
+                              fontWeight: 600
+                            }}
+                            title="Mark student as left class or discontinued"
+                          >
+                            <UserMinus size={13} /> Mark as Left
+                          </button>
+                        ) : (
+                          /* Inactive: Option to Re-enroll / Re-admit */
+                          <button 
+                            onClick={() => setStatusModal({ student: s, action: "re-enroll" })} 
+                            style={{ 
+                              background: "rgba(46,204,113,0.14)", 
+                              border: "1px solid rgba(46,204,113,0.32)", 
+                              color: "#2ecc71", 
+                              padding: "0.35rem 0.65rem", 
+                              borderRadius: 8, 
+                              cursor: "pointer", 
+                              display: "inline-flex", 
+                              alignItems: "center", 
+                              gap: "0.35rem", 
+                              fontSize: "0.78rem",
+                              fontWeight: 600
+                            }}
+                            title="Re-enroll this student back to active training"
+                          >
+                            <RotateCcw size={12} /> Re-enroll
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -241,13 +576,17 @@ export default function StudentsTab() {
         </div>
       )}
 
-      {/* Add/Edit Modal */}
+      {/* Add / Edit Student Modal */}
       {modal && (
         <div className="modal-backdrop" onClick={() => setModal(null)} style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.85rem" }}>
           <div className="modal-box" style={{ maxWidth: 460, width: "100%" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-              <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#e8e8f0" }}>{modal === "add" ? "Add New Student" : "Edit Student"}</h3>
-              <button onClick={() => setModal(null)} style={{ background: "none", border: "none", color: "#8888aa", cursor: "pointer" }}><X size={20} /></button>
+              <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#e8e8f0" }}>
+                {modal === "add" ? "Add New Student" : "Edit Student Details"}
+              </h3>
+              <button onClick={() => setModal(null)} style={{ background: "none", border: "none", color: "#8888aa", cursor: "pointer" }}>
+                <X size={20} />
+              </button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -334,6 +673,55 @@ export default function StudentsTab() {
                 </div>
               </div>
 
+              {/* Class Status Selector (In Class vs Left Class) */}
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#e8e8f0", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
+                  Class Enrollment Status
+                </label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, active: true }))}
+                    style={{
+                      padding: "0.6rem 0.5rem",
+                      borderRadius: 10,
+                      border: `1px solid ${form.active ? "#2ecc71" : "rgba(255,255,255,0.1)"}`,
+                      background: form.active ? "rgba(46,204,113,0.15)" : "rgba(255,255,255,0.03)",
+                      color: form.active ? "#2ecc71" : "#8888aa",
+                      fontWeight: 700,
+                      fontSize: "0.82rem",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.35rem"
+                    }}
+                  >
+                    <UserCheck size={14} /> In Class (Active)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, active: false }))}
+                    style={{
+                      padding: "0.6rem 0.5rem",
+                      borderRadius: 10,
+                      border: `1px solid ${!form.active ? "#e74c3c" : "rgba(255,255,255,0.1)"}`,
+                      background: !form.active ? "rgba(192,57,43,0.18)" : "rgba(255,255,255,0.03)",
+                      color: !form.active ? "#f87171" : "#8888aa",
+                      fontWeight: 700,
+                      fontSize: "0.82rem",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.35rem"
+                    }}
+                  >
+                    <UserX size={14} /> Left Class
+                  </button>
+                </div>
+              </div>
+
               {/* Text Fields */}
               <div>
                 <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#8888aa", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>Full Name *</label>
@@ -393,8 +781,15 @@ export default function StudentsTab() {
             </div>
 
             <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
-              <button onClick={() => setModal(null)} className="btn-ghost" style={{ flex: 1, justifyContent: "center" }}>Cancel</button>
-              <button onClick={saveStudent} className="btn-primary" style={{ flex: 1, justifyContent: "center" }} disabled={saving || uploading || !form.name.trim()}>
+              <button onClick={() => setModal(null)} className="btn-ghost" style={{ flex: 1, justifyContent: "center" }}>
+                Cancel
+              </button>
+              <button 
+                onClick={saveStudent} 
+                className="btn-primary" 
+                style={{ flex: 1, justifyContent: "center" }} 
+                disabled={saving || uploading || !form.name.trim()}
+              >
                 {saving ? "Saving..." : <><Save size={15} />{modal === "add" ? "Add Student" : "Save Changes"}</>}
               </button>
             </div>
@@ -402,21 +797,82 @@ export default function StudentsTab() {
         </div>
       )}
 
-      {/* Delete Confirm Modal */}
-      {deleteId && (
-        <div className="modal-backdrop" onClick={() => setDeleteId(null)} style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.85rem" }}>
-          <div className="modal-box" style={{ maxWidth: 380, width: "100%" }} onClick={e => e.stopPropagation()}>
+      {/* Confirmation Modal for Marking as Left OR Re-enrolling */}
+      {statusModal && (
+        <div className="modal-backdrop" onClick={() => setStatusModal(null)} style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.85rem" }}>
+          <div className="modal-box" style={{ maxWidth: 420, width: "100%" }} onClick={e => e.stopPropagation()}>
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(192,57,43,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem" }}><Trash2 size={22} color="#e74c3c" /></div>
-              <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#e8e8f0", marginBottom: "0.5rem" }}>Remove Student?</h3>
-              <p style={{ color: "#8888aa", fontSize: "0.85rem" }}>
-                <strong style={{ color: "#e8e8f0" }}>{students.find(s => s.id === deleteId)?.name}</strong> will be deactivated. Their records will be preserved.
+              <div style={{ 
+                width: 54, 
+                height: 54, 
+                borderRadius: "50%", 
+                background: statusModal.action === "leave" ? "rgba(192,57,43,0.15)" : "rgba(46,204,113,0.15)", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center", 
+                margin: "0 auto 1rem" 
+              }}>
+                {statusModal.action === "leave" ? (
+                  <UserMinus size={24} color="#e74c3c" />
+                ) : (
+                  <RotateCcw size={24} color="#2ecc71" />
+                )}
+              </div>
+
+              <h3 style={{ fontWeight: 800, fontSize: "1.15rem", color: "#e8e8f0", marginBottom: "0.5rem" }}>
+                {statusModal.action === "leave" ? "Mark Student as Left Class?" : "Re-enroll Student to Class?"}
+              </h3>
+
+              <p style={{ color: "#8888aa", fontSize: "0.85rem", lineHeight: 1.55 }}>
+                {statusModal.action === "leave" ? (
+                  <>
+                    <strong style={{ color: "#e8e8f0" }}>{statusModal.student.name}</strong> will be moved to the <strong style={{ color: "#f87171" }}>Left Students</strong> list and removed from daily attendance sheets. All previous attendance history and fees remain safely kept.
+                  </>
+                ) : (
+                  <>
+                    <strong style={{ color: "#e8e8f0" }}>{statusModal.student.name}</strong> will be restored to active training status and will immediately reappear on daily attendance sheets.
+                  </>
+                )}
               </p>
             </div>
+
             <div style={{ display: "flex", gap: "0.75rem" }}>
-              <button onClick={() => setDeleteId(null)} className="btn-ghost" style={{ flex: 1, justifyContent: "center" }}>Cancel</button>
-              <button onClick={confirmDelete} style={{ flex: 1, justifyContent: "center", background: "linear-gradient(135deg,#c0392b,#96281b)", color: "#fff", border: "none", borderRadius: 10, padding: "0.625rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <UserCheck size={15} />Deactivate
+              <button 
+                onClick={() => setStatusModal(null)} 
+                className="btn-ghost" 
+                style={{ flex: 1, justifyContent: "center" }}
+                disabled={statusSaving}
+              >
+                Cancel
+              </button>
+              
+              <button 
+                onClick={confirmStatusChange} 
+                style={{ 
+                  flex: 1, 
+                  justifyContent: "center", 
+                  background: statusModal.action === "leave" ? "linear-gradient(135deg,#c0392b,#96281b)" : "linear-gradient(135deg,#27ae60,#2ecc71)", 
+                  color: "#fff", 
+                  border: "none", 
+                  borderRadius: 10, 
+                  padding: "0.625rem", 
+                  fontWeight: 700, 
+                  fontSize: "0.85rem",
+                  cursor: "pointer", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: "0.45rem",
+                  boxShadow: statusModal.action === "leave" ? "0 4px 15px rgba(192,57,43,0.35)" : "0 4px 15px rgba(39,174,96,0.35)"
+                }}
+                disabled={statusSaving}
+              >
+                {statusSaving ? (
+                  "Updating..."
+                ) : statusModal.action === "leave" ? (
+                  <><UserMinus size={15} /> Mark as Left</>
+                ) : (
+                  <><RotateCcw size={15} /> Re-enroll</>
+                )}
               </button>
             </div>
           </div>

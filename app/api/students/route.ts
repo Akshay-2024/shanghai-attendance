@@ -3,18 +3,31 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const statusParam = searchParams.get("status");
+    const includeInactive = searchParams.get("includeInactive") === "true" || searchParams.get("all") === "true";
+
+    let whereClause: { active?: boolean } = { active: true };
+    if (statusParam === "inactive" || statusParam === "left") {
+      whereClause = { active: false };
+    } else if (statusParam === "all" || includeInactive) {
+      whereClause = {};
+    }
+
     const students = await prisma.student.findMany({
-      where: { active: true },
+      where: whereClause,
       orderBy: { name: "asc" },
       select: {
         id: true,
         name: true,
         belt: true,
+        dob: true,
         phone: true,
         photoUrl: true,
         joinedOn: true,
+        active: true,
         monthlyFee: true,
         _count: { select: { attendance: true } },
       },
@@ -37,6 +50,7 @@ export async function POST(req: Request) {
         photoUrl: body.photoUrl || null,
         monthlyFee: parseFloat(body.monthlyFee) || 0,
         joinedOn: body.joinedOn ? new Date(body.joinedOn) : undefined,
+        active: body.active !== undefined ? Boolean(body.active) : true,
       },
     });
     const session = await auth();

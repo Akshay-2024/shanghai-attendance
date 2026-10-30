@@ -141,7 +141,7 @@ export default function AuditTab() {
   }
 
   return (
-    <div style={{ maxWidth: 1050, margin: "0 auto" }}>
+    <div style={{ width: "100%", maxWidth: "100%" }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
         <div>

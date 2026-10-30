@@ -202,7 +202,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           )}
         </div>
 
-        <div className="admin-content-area" style={{ padding: "1.5rem" }}>
+        <div className="admin-content-area" style={{ padding: "1.5rem", width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
           {children}
         </div>
       </main>
