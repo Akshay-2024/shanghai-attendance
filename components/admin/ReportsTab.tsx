@@ -88,7 +88,7 @@ export default function ReportsTab() {
           {[...Array(2)].map((_,i) => <div key={i} className="skeleton" style={{ height: 320, borderRadius: 16 }} />)}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))", gap: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "1.25rem" }}>
           {/* Attendance Chart */}
           <div className="glass" style={{ borderRadius: 16, padding: "1.5rem" }}>
             <h3 style={{ fontWeight: 700, fontSize: "0.95rem", color: "#e8e8f0", marginBottom: "1.25rem" }}>Attendance % by Student</h3>
@@ -126,10 +126,10 @@ export default function ReportsTab() {
           </div>
 
           {/* Detailed Table */}
-          <div className="glass" style={{ borderRadius: 16, padding: "1.5rem", gridColumn: "1 / -1" }}>
+          <div className="glass" style={{ borderRadius: 16, padding: "1.25rem", gridColumn: "1 / -1", width: "100%", maxWidth: "100%", overflow: "hidden" }}>
             <h3 style={{ fontWeight: 700, fontSize: "0.95rem", color: "#e8e8f0", marginBottom: "1.25rem" }}>Student Summary</h3>
-            <div style={{ overflowX: "auto" }}>
-              <table className="dojo-table">
+            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "100%" }}>
+              <table className="dojo-table" style={{ minWidth: 550 }}>
                 <thead>
                   <tr><th>Student</th><th>Present</th><th>Total</th><th>Attendance %</th><th>Fee Status</th><th>Paid</th></tr>
                 </thead>

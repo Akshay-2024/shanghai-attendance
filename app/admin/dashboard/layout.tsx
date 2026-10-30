@@ -47,7 +47,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     : BASE_NAV;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0f", display: "flex" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0f", display: "flex", width: "100%", maxWidth: "100vw", overflowX: "hidden" }}>
       {/* Mobile overlay */}
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 40 }} />}
 
@@ -62,6 +62,19 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             .md-sidebar { transform: translateX(0) !important; }
             .md-main { margin-left: 240px !important; }
             .menu-toggle-btn { display: none !important; }
+          }
+          @media (max-width: 767px) {
+            .md-main { width: 100% !important; max-width: 100vw !important; min-width: 0 !important; overflow-x: hidden !important; margin-left: 0 !important; }
+            .admin-topbar { padding: 0 0.85rem !important; height: 56px !important; }
+            .admin-content-area { padding: 1rem 0.75rem 3rem !important; min-width: 0 !important; max-width: 100vw !important; overflow-x: hidden !important; }
+            .admin-top-title { font-size: 0.92rem !important; max-width: 140px; }
+            .sensei-top-btn { padding: 0.35rem 0.65rem !important; font-size: 0.75rem !important; }
+            .sensei-btn-full { display: none !important; }
+            .sensei-btn-short { display: inline !important; }
+          }
+          @media (min-width: 768px) {
+            .sensei-btn-short { display: none !important; }
+            .sensei-btn-full { display: inline !important; }
           }
         `}</style>
 
@@ -133,10 +146,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main */}
-      <main className="md-main" style={{ flex: 1, minHeight: "100vh" }}>
+      <main className="md-main" style={{ flex: 1, minHeight: "100vh", minWidth: 0, width: "100%", maxWidth: "100vw", overflowX: "hidden" }}>
         {/* Top bar */}
-        <div style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(10,10,15,0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
+        <div className="admin-topbar" style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(10,10,15,0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, gap: "0.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", minWidth: 0, gap: "0.5rem" }}>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="menu-toggle-btn"
@@ -146,16 +159,16 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 color: "#8888aa",
                 cursor: "pointer",
                 padding: "0.25rem",
-                marginRight: "1rem",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                flexShrink: 0,
               }}
             >
               {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <div style={{ fontWeight: 700, fontSize: "1rem", color: "#e8e8f0" }}>
-              {active === "audit" ? "Master Audit & Activity Log" : navItems.find(n => n.id === active)?.label || "Dashboard"}
+            <div className="admin-top-title" style={{ fontWeight: 700, fontSize: "1rem", color: "#e8e8f0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {active === "audit" ? "Master Audit Log" : navItems.find(n => n.id === active)?.label || "Dashboard"}
             </div>
           </div>
 
@@ -164,6 +177,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             <Link
               href="/admin/dashboard?tab=audit"
               onClick={() => setActive("audit")}
+              className="sensei-top-btn"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -176,16 +190,19 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 fontSize: "0.8rem",
                 fontWeight: 700,
                 textDecoration: "none",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
                 transition: "all 0.2s",
               }}
             >
               <ShieldCheck size={15} />
-              <span>Sensei Audit Logs</span>
+              <span className="sensei-btn-full">Sensei Audit Logs</span>
+              <span className="sensei-btn-short">Audit Logs</span>
             </Link>
           )}
         </div>
 
-        <div style={{ padding: "1.5rem" }}>
+        <div className="admin-content-area" style={{ padding: "1.5rem" }}>
           {children}
         </div>
       </main>

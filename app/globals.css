@@ -23,6 +23,9 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 body {
@@ -31,6 +34,9 @@ body {
   font-family: var(--font-outfit), sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 /* Scrollbar */
@@ -243,6 +249,29 @@ select.input-dojo option:checked {
   animation: slideUp 0.3s ease-out;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .modal-box {
+    width: 92% !important;
+    max-width: 440px !important;
+    padding: 1.25rem 1rem !important;
+    border-radius: 14px !important;
+  }
+}
+
+/* Fee Summary Responsive Grid */
+.fee-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+@media (min-width: 640px) {
+  .fee-summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
 }
 
 /* Table */

@@ -116,14 +116,23 @@ export default function AttendanceTab() {
       <p style={{ color: "#8888aa", fontSize: "0.85rem", marginBottom: "1.5rem" }}>Check students who attended class on the selected date.</p>
 
       {/* Date Picker */}
-      <div className="glass" style={{ borderRadius: 14, padding: "1.25rem", marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-        <button onClick={() => changeDate(-1)} className="btn-ghost" style={{ padding: "0.5rem 0.75rem" }}><ChevronLeft size={16} /></button>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} className="input-dojo" style={{ width: "auto", flex: 1, minWidth: 160 }} max={today} />
-        <button onClick={() => changeDate(1)} className="btn-ghost" style={{ padding: "0.5rem 0.75rem" }} disabled={date >= today}><ChevronRight size={16} /></button>
-        <div style={{ marginLeft: "auto", display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
-          <span style={{ color: "#8888aa", fontSize: "0.85rem" }}>{presentCount}/{total} present</span>
-          <button onClick={() => markAll(true)} className="btn-ghost" style={{ fontSize: "0.8rem", padding: "0.4rem 0.75rem" }}><CheckCircle2 size={14} />All Present</button>
-          <button onClick={() => markAll(false)} className="btn-ghost" style={{ fontSize: "0.8rem", padding: "0.4rem 0.75rem" }}><XCircle size={14} />Clear All</button>
+      <div className="glass" style={{ borderRadius: 14, padding: "1rem", marginBottom: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "100%" }}>
+          <button onClick={() => changeDate(-1)} className="btn-ghost" style={{ padding: "0.5rem 0.75rem", flexShrink: 0 }} aria-label="Previous day"><ChevronLeft size={16} /></button>
+          <input type="date" value={date} onChange={e => setDate(e.target.value)} className="input-dojo" style={{ flex: 1, minWidth: 0, textAlign: "center" }} max={today} />
+          <button onClick={() => changeDate(1)} className="btn-ghost" style={{ padding: "0.5rem 0.75rem", flexShrink: 0 }} disabled={date >= today} aria-label="Next day"><ChevronRight size={16} /></button>
+        </div>
+
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", paddingTop: "0.4rem", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <span style={{ color: "#8888aa", fontSize: "0.82rem", fontWeight: 600 }}>{presentCount} of {total} present</span>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button onClick={() => markAll(true)} className="btn-ghost" style={{ fontSize: "0.78rem", padding: "0.35rem 0.65rem", gap: "0.3rem" }}>
+              <CheckCircle2 size={13} color="#2ecc71" /> All Present
+            </button>
+            <button onClick={() => markAll(false)} className="btn-ghost" style={{ fontSize: "0.78rem", padding: "0.35rem 0.65rem", gap: "0.3rem" }}>
+              <XCircle size={13} color="#e74c3c" /> Clear All
+            </button>
+          </div>
         </div>
       </div>
 
@@ -134,11 +143,11 @@ export default function AttendanceTab() {
 
       {/* Student List */}
       {loading && students.length === 0 ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", paddingBottom: "5.5rem" }}>
           {[...Array(6)].map((_, i) => <div key={i} className="skeleton" style={{ height: 60, borderRadius: 12 }} />)}
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", paddingBottom: "5.5rem" }}>
           {students.map(student => {
             const present = records[student.id] ?? false;
             return (
@@ -154,8 +163,8 @@ export default function AttendanceTab() {
                 }}
               >
                 <Avatar name={student.name} photoUrl={student.photoUrl} size={40} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: "0.95rem", color: "#e8e8f0" }}>{student.name}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: "0.95rem", color: "#e8e8f0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{student.name}</div>
                   <span className={BELT_CLASS[student.belt] || "belt-white"} style={{ fontSize: "0.65rem", fontWeight: 700, padding: "0.15rem 0.5rem", borderRadius: 50, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {BELT_LABELS[student.belt] || student.belt}
                   </span>
@@ -174,9 +183,32 @@ export default function AttendanceTab() {
         </div>
       )}
 
-      {/* Save Button */}
-      <div style={{ position: "sticky", bottom: "1.5rem", marginTop: "1.5rem", display: "flex", justifyContent: "center" }}>
-        <button onClick={saveAttendance} className="btn-primary" style={{ padding: "0.875rem 2.5rem", fontSize: "1rem", boxShadow: "0 8px 32px rgba(192,57,43,0.4)" }} disabled={saving}>
+      {/* Floating Save Dock (Sticky above bottom edge, never covers scrolled items) */}
+      <div style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: "0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px))",
+        background: "linear-gradient(to top, rgba(10,10,15,0.98) 70%, rgba(10,10,15,0) 100%)",
+        display: "flex",
+        justifyContent: "center",
+        zIndex: 25,
+        pointerEvents: "none"
+      }}>
+        <button 
+          onClick={saveAttendance} 
+          className="btn-primary" 
+          style={{ 
+            pointerEvents: "auto", 
+            padding: "0.85rem 2.25rem", 
+            fontSize: "0.95rem", 
+            boxShadow: "0 8px 30px rgba(192,57,43,0.5)",
+            maxWidth: "92%",
+            width: "auto"
+          }} 
+          disabled={saving}
+        >
           {saving ? "Saving..." : saved ? "✓ Saved!" : <><Save size={16} />Save Attendance</>}
         </button>
       </div>

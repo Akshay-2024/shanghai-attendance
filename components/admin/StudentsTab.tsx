@@ -187,17 +187,17 @@ export default function StudentsTab() {
 
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.85rem", marginBottom: "1.25rem", width: "100%" }}>
         <div>
-          <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#e8e8f0" }}>Manage Students</h2>
-          <p style={{ color: "#8888aa", fontSize: "0.85rem", marginTop: "0.2rem" }}>{students.length} total students</p>
+          <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#e8e8f0" }}>Manage Students</h2>
+          <p style={{ color: "#8888aa", fontSize: "0.82rem", marginTop: "0.15rem" }}>{students.length} total students</p>
         </div>
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#8888aa", fontSize: "0.82rem", cursor: "pointer" }}>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "0.45rem", color: "#8888aa", fontSize: "0.8rem", cursor: "pointer", userSelect: "none" }}>
             <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} style={{ accentColor: "#c0392b" }} />
             Show inactive
           </label>
-          <button className="btn-primary" onClick={openAdd}><Plus size={16} />Add Student</button>
+          <button className="btn-primary" onClick={openAdd} style={{ padding: "0.55rem 1.1rem", fontSize: "0.85rem" }}><Plus size={15} />Add Student</button>
         </div>
       </div>
 
@@ -206,9 +206,9 @@ export default function StudentsTab() {
           {[...Array(6)].map((_,i) => <div key={i} className="skeleton" style={{ height: 64, borderRadius: 12 }} />)}
         </div>
       ) : (
-        <div className="glass" style={{ borderRadius: 16, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="dojo-table">
+        <div className="glass" style={{ borderRadius: 16, overflow: "hidden", width: "100%", maxWidth: "100%" }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "100%" }}>
+            <table className="dojo-table" style={{ minWidth: 620 }}>
               <thead>
                 <tr>
                   <th>Student</th><th>Belt</th><th>Phone</th><th>Monthly Fee</th><th>Joined</th><th>Actions</th>
@@ -243,8 +243,8 @@ export default function StudentsTab() {
 
       {/* Add/Edit Modal */}
       {modal && (
-        <div className="modal-backdrop" onClick={() => setModal(null)}>
-          <div className="modal-box" style={{ maxWidth: 480 }} onClick={e => e.stopPropagation()}>
+        <div className="modal-backdrop" onClick={() => setModal(null)} style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.85rem" }}>
+          <div className="modal-box" style={{ maxWidth: 460, width: "100%" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
               <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#e8e8f0" }}>{modal === "add" ? "Add New Student" : "Edit Student"}</h3>
               <button onClick={() => setModal(null)} style={{ background: "none", border: "none", color: "#8888aa", cursor: "pointer" }}><X size={20} /></button>
@@ -340,7 +340,7 @@ export default function StudentsTab() {
                 <input className="input-dojo" placeholder="Arjun Sharma" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#8888aa", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>Phone</label>
                   <input className="input-dojo" placeholder="9876543210" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
@@ -351,7 +351,7 @@ export default function StudentsTab() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#8888aa", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>Joining Date *</label>
                   <input className="input-dojo" type="date" value={form.joinedOn} onChange={e => setForm(f => ({ ...f, joinedOn: e.target.value }))} />
@@ -404,8 +404,8 @@ export default function StudentsTab() {
 
       {/* Delete Confirm Modal */}
       {deleteId && (
-        <div className="modal-backdrop" onClick={() => setDeleteId(null)}>
-          <div className="modal-box" style={{ maxWidth: 380 }} onClick={e => e.stopPropagation()}>
+        <div className="modal-backdrop" onClick={() => setDeleteId(null)} style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.85rem" }}>
+          <div className="modal-box" style={{ maxWidth: 380, width: "100%" }} onClick={e => e.stopPropagation()}>
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(192,57,43,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem" }}><Trash2 size={22} color="#e74c3c" /></div>
               <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#e8e8f0", marginBottom: "0.5rem" }}>Remove Student?</h3>

@@ -23,13 +23,18 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0f", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0f", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", position: "relative", overflow: "hidden" }}>
+      <style>{`
+        @media (max-width: 480px) {
+          .login-card { padding: 1.75rem 1.25rem !important; border-radius: 16px !important; }
+        }
+      `}</style>
       {/* Background */}
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(192,57,43,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: "15%", left: "10%", width: 300, height: 300, background: "rgba(192,57,43,0.04)", borderRadius: "50%", filter: "blur(60px)" }} />
       <div style={{ position: "absolute", bottom: "15%", right: "10%", width: 250, height: 250, background: "rgba(243,156,18,0.04)", borderRadius: "50%", filter: "blur(60px)" }} />
 
-      <div className="glass animate-slide-up" style={{ width: "100%", maxWidth: 420, borderRadius: 20, padding: "2.5rem", position: "relative" }}>
+      <div className="glass animate-slide-up login-card" style={{ width: "100%", maxWidth: 420, borderRadius: 20, padding: "2.5rem", position: "relative" }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <Image src="/logo.png" alt="Shanghai Karate" width={72} height={72} style={{ borderRadius: 14, marginBottom: "1rem", boxShadow: "0 0 30px rgba(192,57,43,0.3)" }} />

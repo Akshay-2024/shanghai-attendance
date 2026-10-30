@@ -276,9 +276,9 @@ export default function AuditTab() {
         </div>
       ) : activeSubTab === "logins" ? (
         /* Login History Table */
-        <div className="glass" style={{ borderRadius: 16, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="dojo-table">
+        <div className="glass" style={{ borderRadius: 16, overflow: "hidden", width: "100%", maxWidth: "100%" }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "100%" }}>
+            <table className="dojo-table" style={{ minWidth: 600 }}>
               <thead>
                 <tr>
                   <th>User</th>
@@ -346,9 +346,9 @@ export default function AuditTab() {
         </div>
       ) : (
         /* Activity & Changes Table */
-        <div className="glass" style={{ borderRadius: 16, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="dojo-table">
+        <div className="glass" style={{ borderRadius: 16, overflow: "hidden", width: "100%", maxWidth: "100%" }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "100%" }}>
+            <table className="dojo-table" style={{ minWidth: 640 }}>
               <thead>
                 <tr>
                   <th>User</th>

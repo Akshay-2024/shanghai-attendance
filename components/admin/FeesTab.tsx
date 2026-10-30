@@ -149,16 +149,16 @@ export default function FeesTab() {
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: "1rem", marginBottom: "1.25rem" }}>
+      <div className="fee-summary-grid">
         {[
           { label: "Total Due", value: `₹${summary.totalDue.toLocaleString("en-IN")}`, color: "#8888aa" },
           { label: "Collected", value: `₹${summary.totalPaid.toLocaleString("en-IN")}`, color: "#2ecc71" },
           { label: "Outstanding", value: `₹${summary.outstanding.toLocaleString("en-IN")}`, color: "#e74c3c" },
           { label: "Collected %", value: `${pctCollected}%`, color: pctCollected >= 80 ? "#2ecc71" : "#f39c12" },
         ].map(card => (
-          <div key={card.label} className="glass" style={{ borderRadius: 14, padding: "1.125rem", textAlign: "center" }}>
-            <div style={{ fontSize: "0.7rem", color: "#8888aa", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.4rem" }}>{card.label}</div>
-            <div style={{ fontSize: "1.4rem", fontWeight: 800, color: card.color }}>{card.value}</div>
+          <div key={card.label} className="glass" style={{ borderRadius: 14, padding: "1rem", textAlign: "center" }}>
+            <div style={{ fontSize: "0.68rem", color: "#8888aa", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.35rem" }}>{card.label}</div>
+            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: card.color }}>{card.value}</div>
           </div>
         ))}
       </div>
@@ -174,9 +174,9 @@ export default function FeesTab() {
           {[...Array(6)].map((_, i) => <div key={i} className="skeleton" style={{ height: 56, borderRadius: 10 }} />)}
         </div>
       ) : (
-        <div className="glass" style={{ borderRadius: 16, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="dojo-table">
+        <div className="glass" style={{ borderRadius: 16, overflow: "hidden", width: "100%", maxWidth: "100%" }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "100%" }}>
+            <table className="dojo-table" style={{ minWidth: 680 }}>
               <thead>
                 <tr>
                   <th>Student</th>
@@ -269,8 +269,8 @@ export default function FeesTab() {
 
       {/* Payment Recording Modal with Partial Support */}
       {modal && (
-        <div className="modal-backdrop" onClick={() => setModal(null)}>
-          <div className="modal-box" style={{ maxWidth: 460 }} onClick={e => e.stopPropagation()}>
+        <div className="modal-backdrop" onClick={() => setModal(null)} style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.85rem" }}>
+          <div className="modal-box" style={{ maxWidth: 460, width: "100%" }} onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
               <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "#e8e8f0" }}>Record / Update Payment</h3>
               <button onClick={() => setModal(null)} style={{ background: "none", border: "none", color: "#8888aa", cursor: "pointer" }}><X size={20} /></button>

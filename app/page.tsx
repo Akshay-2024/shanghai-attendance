@@ -151,16 +151,6 @@ export default function HomePage() {
           text-transform: uppercase;
           white-space: nowrap;
         }
-        .nav-kanji {
-          font-size: 0.65rem;
-          background: rgba(192,57,43,0.25);
-          border: 1px solid rgba(192,57,43,0.5);
-          color: #f87171;
-          padding: 0.12rem 0.4rem;
-          border-radius: 4px;
-          font-weight: 700;
-          white-space: nowrap;
-        }
         .nav-brand-sub {
           font-size: 0.7rem;
           color: #8e8ea6;
@@ -220,9 +210,6 @@ export default function HomePage() {
           }
           .nav-brand-title {
             font-size: 0.92rem;
-          }
-          .nav-kanji {
-            display: none; /* Hide kanji on small phones so brand fits without wrapping */
           }
           .nav-brand-sub {
             font-size: 0.6rem;
@@ -304,6 +291,33 @@ export default function HomePage() {
             grid-template-columns: 1fr !important;
             gap: 1rem !important;
           }
+          /* Dojo Kun Mobile */
+          .dojokun-wrap {
+            margin: 0 auto 3.5rem !important;
+            padding: 0 0.85rem !important;
+          }
+          .dojokun-box {
+            padding: 2rem 1.15rem !important;
+            border-radius: 18px !important;
+          }
+          .dojokun-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+          .dojokun-item {
+            padding: 1.25rem 1rem !important;
+            border-radius: 14px !important;
+          }
+          .dojokun-quote-box {
+            margin-top: 1.75rem !important;
+            padding: 1.15rem 1rem !important;
+          }
+          .dojokun-quote-text {
+            font-size: 0.9rem !important;
+          }
+          .dojokun-quote-author {
+            font-size: 0.72rem !important;
+          }
           .footer-wrap {
             padding: 2.5rem 1rem 1.75rem !important;
           }
@@ -378,9 +392,6 @@ export default function HomePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                 <span className="nav-brand-title">
                   Shanghai Karate
-                </span>
-                <span className="nav-kanji">
-                  松涛館
                 </span>
               </div>
               <div className="nav-brand-sub">
@@ -893,6 +904,117 @@ export default function HomePage() {
         )}
       </section>
 
+      {/* ================= DOJO KUN & PHILOSOPHY SECTION ================= */}
+      <section id="dojo-kun" className="dojokun-wrap" style={{ maxWidth: 1240, margin: "0 auto 5rem", padding: "0 1.5rem", position: "relative", zIndex: 1 }}>
+        <div 
+          className="dojokun-box"
+          style={{ 
+            background: "radial-gradient(ellipse at 50% 0%, rgba(192, 57, 43, 0.15) 0%, rgba(18, 18, 28, 0.92) 70%)", 
+            border: "1px solid rgba(192, 57, 43, 0.25)", 
+            borderRadius: 24, 
+            padding: "3rem 2rem",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
+          }}
+        >
+          <div style={{ textAlign: "center", maxWidth: 680, margin: "0 auto 2.75rem" }}>
+            <span style={{ fontSize: "0.8rem", color: "#f87171", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+              道場訓 • DOJO KUN
+            </span>
+            <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.35rem)", fontWeight: 900, color: "#ffffff", marginTop: "0.45rem", marginBottom: "0.75rem", letterSpacing: "-0.02em" }}>
+              The 5 Pillars of Karatedo
+            </h2>
+            <p style={{ color: "#9aa0b8", fontSize: "0.92rem", lineHeight: 1.6 }}>
+              Established by Master Gichin Funakoshi. Each precept begins with &quot;Hitotsu&quot; (First), signifying that all rules hold equal and paramount importance.
+            </p>
+          </div>
+
+          <div className="dojokun-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
+            {[
+              {
+                num: "01",
+                kanji: "一、人格完成に努むること",
+                en: "Seek Perfection of Character",
+                desc: "Karate is not about defeating others, but about mastering yourself and building unshakeable integrity."
+              },
+              {
+                num: "02",
+                kanji: "一、誠の道を守ること",
+                en: "Be Faithful & Sincere",
+                desc: "Honor your word, respect your masters and peers, and practice with pure honesty in heart and technique."
+              },
+              {
+                num: "03",
+                kanji: "一、努力の精神を養うこと",
+                en: "Endeavor & Strive",
+                desc: "Perseverance in the face of exhaustion. True martial power comes from relentless repetition."
+              },
+              {
+                num: "04",
+                kanji: "一、礼儀を重んずること",
+                en: "Respect Etiquette & Others",
+                desc: "Karate begins and ends with courtesy. Respect toward everyone in and outside the dojo."
+              },
+              {
+                num: "05",
+                kanji: "一、血気の勇を戒むること",
+                en: "Refrain from Violent Behavior",
+                desc: "The highest victory is to resolve conflict without striking. Self-control is supreme strength."
+              },
+            ].map((pillar) => (
+              <div 
+                key={pillar.num}
+                className="dojokun-item"
+                style={{ 
+                  background: "rgba(10, 10, 16, 0.65)", 
+                  border: "1px solid rgba(255, 255, 255, 0.08)", 
+                  borderRadius: 18, 
+                  padding: "1.5rem",
+                  transition: "all 0.25s ease",
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+                  <div style={{ fontSize: "0.75rem", color: "#f59e0b", fontWeight: 700 }}>
+                    {pillar.kanji}
+                  </div>
+                  <span style={{ fontSize: "0.65rem", fontWeight: 800, color: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.05)", padding: "0.15rem 0.45rem", borderRadius: 4 }}>
+                    {pillar.num}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: "1.08rem", fontWeight: 800, color: "#ffffff", marginBottom: "0.45rem", letterSpacing: "-0.01em" }}>
+                  {pillar.en}
+                </h3>
+                <p style={{ fontSize: "0.85rem", color: "#8e8ea6", lineHeight: 1.55, margin: 0 }}>
+                  {pillar.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Master Quote Banner */}
+          <div 
+            className="dojokun-quote-box"
+            style={{ 
+              marginTop: "2.5rem", 
+              padding: "1.5rem 1.75rem", 
+              background: "rgba(192, 57, 43, 0.12)", 
+              borderLeft: "4px solid #c0392b", 
+              borderRadius: "0 16px 16px 0",
+              textAlign: "center"
+            }}
+          >
+            <p className="dojokun-quote-text" style={{ fontStyle: "italic", color: "#f1f1f6", fontSize: "0.98rem", margin: 0, lineHeight: 1.6 }}>
+              &ldquo;The ultimate aim of Karate lies not in victory or defeat, but in the perfection of the character of its participants.&rdquo;
+            </p>
+            <div className="dojokun-quote-author" style={{ color: "#f87171", fontSize: "0.78rem", fontWeight: 700, marginTop: "0.55rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              — Gichin Funakoshi, Father of Modern Karate
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ================= FOOTER ================= */}
       <footer 
         className="footer-wrap"
@@ -923,6 +1045,9 @@ export default function HomePage() {
             </Link>
             <a href="#student-roster" style={{ color: "#8e8ea6", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>
               Student Directory
+            </a>
+            <a href="#dojo-kun" style={{ color: "#8e8ea6", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>
+              Dojo Kun
             </a>
           </div>
         </div>
