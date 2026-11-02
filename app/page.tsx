@@ -40,6 +40,7 @@ interface Student {
   name: string;
   belt: string;
   phone: string;
+  whatsapp?: string | null;
   photoUrl: string | null;
   joinedOn: string;
   monthlyFee: number;

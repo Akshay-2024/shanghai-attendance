@@ -11,6 +11,7 @@ interface Student {
   belt: string;
   dob: string | null;
   phone: string | null;
+  whatsapp: string | null;
   photoUrl: string | null;
   monthlyFee: number;
   joinedOn: string;
@@ -64,6 +65,8 @@ const emptyForm = {
   belt: "WHITE",
   dob: "",
   phone: "",
+  isWhatsapp: true,
+  whatsapp: "",
   photoUrl: "",
   monthlyFee: "",
   joinedOn: new Date().toISOString().split("T")[0],
@@ -143,18 +146,23 @@ export default function StudentsTab() {
     setForm({ 
       ...emptyForm, 
       joinedOn: new Date().toISOString().split("T")[0],
-      active: true 
+      active: true,
+      isWhatsapp: true,
+      whatsapp: ""
     });
     setUploadError(null);
     setModal("add");
   }
 
   function openEdit(s: Student) {
+    const hasDifferentWhatsapp = Boolean(s.whatsapp && s.whatsapp !== s.phone);
     setForm({
       name: s.name,
       belt: s.belt,
       dob: s.dob || "",
       phone: s.phone || "",
+      isWhatsapp: !hasDifferentWhatsapp,
+      whatsapp: hasDifferentWhatsapp ? (s.whatsapp || "") : "",
       photoUrl: s.photoUrl || "",
       monthlyFee: String(s.monthlyFee),
       joinedOn: s.joinedOn ? s.joinedOn.split("T")[0] : new Date().toISOString().split("T")[0],
@@ -214,17 +222,21 @@ export default function StudentsTab() {
   async function saveStudent() {
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        whatsapp: form.isWhatsapp ? (form.phone || null) : (form.whatsapp || null),
+      };
       if (modal === "add") {
         await fetch("/api/students", { 
           method: "POST", 
           headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify(form) 
+          body: JSON.stringify(payload) 
         });
       } else {
         await fetch(`/api/students/${editId}`, { 
           method: "PUT", 
           headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify(form) 
+          body: JSON.stringify(payload) 
         });
       }
       setModal(null);
@@ -290,7 +302,7 @@ export default function StudentsTab() {
     if (search.trim()) {
       const q = search.toLowerCase();
       const matchName = s.name.toLowerCase().includes(q);
-      const matchPhone = s.phone && s.phone.includes(q);
+      const matchPhone = (s.phone && s.phone.includes(q)) || (s.whatsapp && s.whatsapp.includes(q));
       if (!matchName && !matchPhone) return false;
     }
 
@@ -538,7 +550,14 @@ export default function StudentsTab() {
                         </span>
                       )}
                     </td>
-                    <td style={{ color: "#8888aa" }}>{s.phone || "—"}</td>
+                    <td style={{ color: "#8888aa" }}>
+                      <div>{s.phone || "—"}</div>
+                      {s.whatsapp && s.whatsapp !== s.phone && (
+                        <div style={{ fontSize: "0.72rem", color: "#25D366", display: "flex", alignItems: "center", gap: "0.25rem", marginTop: "0.2rem" }}>
+                          <span style={{ fontWeight: 600 }}>WA:</span> {s.whatsapp}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ color: "#f39c12", fontWeight: 600 }}>₹{s.monthlyFee}</td>
                     <td style={{ color: "#8888aa" }}>
                       {new Date(s.joinedOn).toLocaleDateString("en-IN", { year: "numeric", month: "short" })}
@@ -794,10 +813,74 @@ export default function StudentsTab() {
                 <input className="input-dojo" placeholder="Arjun Sharma" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem", alignItems: "start" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#8888aa", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>Phone</label>
                   <input className="input-dojo" placeholder="9876543210" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                  
+                  {/* WhatsApp verification checkbox */}
+                  <label 
+                    style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "0.45rem", 
+                      marginTop: "0.55rem", 
+                      cursor: "pointer", 
+                      userSelect: "none" 
+                    }}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={form.isWhatsapp} 
+                      onChange={e => setForm(f => ({ ...f, isWhatsapp: e.target.checked }))} 
+                      style={{ 
+                        accentColor: "#25D366", 
+                        width: 15, 
+                        height: 15, 
+                        cursor: "pointer" 
+                      }}
+                    />
+                    <span style={{ fontSize: "0.75rem", color: "#b0b0c6", fontWeight: 500 }}>
+                      This is a WhatsApp number
+                    </span>
+                  </label>
+
+                  {/* If not a WhatsApp number, give another section there to fill */}
+                  {!form.isWhatsapp && (
+                    <div 
+                      style={{ 
+                        marginTop: "0.6rem", 
+                        padding: "0.65rem 0.75rem", 
+                        background: "rgba(37, 211, 102, 0.05)", 
+                        border: "1px dashed rgba(37, 211, 102, 0.35)", 
+                        borderRadius: 10 
+                      }}
+                    >
+                      <label 
+                        style={{ 
+                          display: "block", 
+                          fontSize: "0.72rem", 
+                          fontWeight: 700, 
+                          color: "#25D366", 
+                          textTransform: "uppercase", 
+                          letterSpacing: "0.06em", 
+                          marginBottom: "0.35rem" 
+                        }}
+                      >
+                        WhatsApp Number
+                      </label>
+                      <input 
+                        className="input-dojo" 
+                        placeholder="9876543210" 
+                        value={form.whatsapp} 
+                        onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))} 
+                        style={{ fontSize: "0.85rem" }}
+                      />
+                      <span style={{ display: "block", fontSize: "0.68rem", color: "#8888aa", marginTop: "0.3rem" }}>
+                        Specify student or parent WhatsApp number
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#8888aa", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>Date of Birth</label>

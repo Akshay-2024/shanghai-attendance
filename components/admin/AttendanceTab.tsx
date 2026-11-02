@@ -42,11 +42,16 @@ export default function AttendanceTab() {
     async function initStudents() {
       try {
         const sRes = await fetch("/api/students");
+        if (!sRes.ok) {
+          setStudents([]);
+          return;
+        }
         const s = await sRes.json();
-        setStudents(s);
+        setStudents(Array.isArray(s) ? s : []);
         studentsLoadedRef.current = true;
       } catch (err) {
         console.error("Failed to load students", err);
+        setStudents([]);
       }
     }
     initStudents();
@@ -87,16 +92,18 @@ export default function AttendanceTab() {
   function markAll(present: boolean) {
     setRecords(() => {
       const map: Record<string, boolean> = {};
-      students.forEach(s => { map[s.id] = present; });
+      const list = Array.isArray(students) ? students : [];
+      list.forEach(s => { map[s.id] = present; });
       return map;
     });
   }
 
   async function saveAttendance() {
     setSaving(true);
+    const list = Array.isArray(students) ? students : [];
     const payload = {
       date,
-      records: students.map(s => ({
+      records: list.map(s => ({
         studentId: s.id,
         present: records[s.id] ?? false,
       })),
@@ -107,8 +114,9 @@ export default function AttendanceTab() {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  const presentCount = students.filter(s => records[s.id]).length;
-  const total = students.length;
+  const studentList = Array.isArray(students) ? students : [];
+  const presentCount = studentList.filter(s => records[s.id]).length;
+  const total = studentList.length;
 
   return (
     <div style={{ width: "100%", maxWidth: 1100, margin: "0 auto" }}>
@@ -154,13 +162,13 @@ export default function AttendanceTab() {
       </div>
 
       {/* Student List */}
-      {loading && students.length === 0 ? (
+      {loading && studentList.length === 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", paddingBottom: "5.5rem" }}>
           {[...Array(6)].map((_, i) => <div key={i} className="skeleton" style={{ height: 60, borderRadius: 12 }} />)}
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", paddingBottom: "5.5rem" }}>
-          {students.map(student => {
+          {studentList.map(student => {
             const present = records[student.id] ?? false;
             return (
               <div

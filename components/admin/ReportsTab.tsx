@@ -19,10 +19,15 @@ export default function ReportsTab() {
     setLoading(true);
     try {
       const r = await fetch(`/api/reports?month=${m}`);
+      if (!r.ok) {
+        setStudents([]);
+        return;
+      }
       const data = await r.json();
-      setStudents(data || []);
+      setStudents(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
@@ -30,8 +35,11 @@ export default function ReportsTab() {
 
   useEffect(() => { load(month); }, [month, load]);
 
-  const attendanceData = students.map(s => {
-    const monthRecords = s.attendance.filter(a => a.date.startsWith(month));
+  const studentList = Array.isArray(students) ? students : [];
+
+  const attendanceData = studentList.map(s => {
+    const records = Array.isArray(s.attendance) ? s.attendance : [];
+    const monthRecords = records.filter(a => a.date.startsWith(month));
     const total = monthRecords.length;
     const present = monthRecords.filter(a => a.present).length;
     return { name: s.name.split(" ")[0], pct: total ? Math.round((present / total) * 100) : 0, present, total };
@@ -39,8 +47,9 @@ export default function ReportsTab() {
 
   const feeData = (() => {
     let paid = 0, unpaid = 0, partial = 0;
-    students.forEach(s => {
-      const fee = s.fees.find(f => f.month === month);
+    studentList.forEach(s => {
+      const fees = Array.isArray(s.fees) ? s.fees : [];
+      const fee = fees.find(f => f.month === month);
       if (!fee || fee.status === "UNPAID") unpaid++;
       else if (fee.status === "PAID") paid++;
       else partial++;
@@ -54,11 +63,13 @@ export default function ReportsTab() {
 
   function exportCSV() {
     const rows = [["Name", "Belt", "Month", "Present Days", "Total Days", "Attendance %", "Fee Status", "Amount Paid (₹)"]];
-    students.forEach(s => {
-      const monthRecords = s.attendance.filter(a => a.date.startsWith(month));
+    studentList.forEach(s => {
+      const records = Array.isArray(s.attendance) ? s.attendance : [];
+      const monthRecords = records.filter(a => a.date.startsWith(month));
       const total = monthRecords.length;
       const present = monthRecords.filter(a => a.present).length;
-      const fee = s.fees.find(f => f.month === month);
+      const fees = Array.isArray(s.fees) ? s.fees : [];
+      const fee = fees.find(f => f.month === month);
       rows.push([
         s.name, 
         s.belt, 
@@ -179,12 +190,14 @@ export default function ReportsTab() {
                   <tr><th>Student</th><th>Present</th><th>Total</th><th>Attendance %</th><th>Fee Status</th><th>Paid</th></tr>
                 </thead>
                 <tbody>
-                  {students.map(s => {
-                    const monthRecords = s.attendance.filter(a => a.date.startsWith(month));
+                  {studentList.map(s => {
+                    const records = Array.isArray(s.attendance) ? s.attendance : [];
+                    const monthRecords = records.filter(a => a.date.startsWith(month));
                     const total = monthRecords.length;
                     const present = monthRecords.filter(a => a.present).length;
                     const pct = total ? Math.round((present / total) * 100) : 0;
-                    const fee = s.fees.find(f => f.month === month);
+                    const fees = Array.isArray(s.fees) ? s.fees : [];
+                    const fee = fees.find(f => f.month === month);
                     return (
                       <tr key={s.id}>
                         <td style={{ fontWeight: 600, color: "#e8e8f0" }}>{s.name}</td>

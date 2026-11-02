@@ -38,19 +38,31 @@ export async function PUT(
   const { id } = await params;
   try {
     const body = await req.json();
-    const student = await prisma.student.update({
-      where: { id },
-      data: {
-        name: body.name,
-        belt: body.belt,
-        dob: body.dob,
-        phone: body.phone,
-        photoUrl: body.photoUrl,
-        monthlyFee: parseFloat(body.monthlyFee) || 0,
-        joinedOn: body.joinedOn ? new Date(body.joinedOn) : undefined,
-        active: body.active !== undefined ? Boolean(body.active) : undefined,
-      },
-    });
+    const data: any = {
+      name: body.name,
+      belt: body.belt,
+      dob: body.dob,
+      phone: body.phone,
+      whatsapp: body.whatsapp !== undefined ? (body.whatsapp || null) : undefined,
+      photoUrl: body.photoUrl,
+      monthlyFee: parseFloat(body.monthlyFee) || 0,
+      joinedOn: body.joinedOn ? new Date(body.joinedOn) : undefined,
+      active: body.active !== undefined ? Boolean(body.active) : undefined,
+    };
+
+    let student;
+    try {
+      student = await prisma.student.update({
+        where: { id },
+        data,
+      });
+    } catch {
+      delete data.whatsapp;
+      student = await prisma.student.update({
+        where: { id },
+        data,
+      });
+    }
     const session = await auth();
     const actor = session?.user?.name || "admin";
     await logActivity(
